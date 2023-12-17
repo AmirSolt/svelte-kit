@@ -1,12 +1,12 @@
-// See https://kit.svelte.dev/docs/types#app
-// for information about these interfaces
+import { Config } from "@prisma/client";
+
 declare global {
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface Platform {}
+		interface Locals {
+			config:Config
+		}
+	//   interface PageData {}
+	  // interface Error {}
+	  // interface Platform {}
 	}
-}
-
-export {};
+  }
