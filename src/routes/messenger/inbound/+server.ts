@@ -49,7 +49,7 @@ export const POST: RequestHandler = async (event) => {
     //     return res.type('text/xml').send(twimlResponse.toString());
     // }
 
-    // await submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)
+    // if(!await submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)) return
 
     // console.log("--- user message saved")
 

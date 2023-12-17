@@ -14,18 +14,21 @@ export async function submitMessage(
     content: string | null | undefined = undefined,
     extra_json: any|undefined|null=undefined,
     image_urls: string[]=[]
-    ):Promise<MProfile> {
+    ):Promise<boolean> {
 
     if(messageDir===MessageDir.INBOUND && content && content.length >= messageCharLimit && role!==MessageRole.TOOL){
         const newContent = `Sorry, but your message exceeds ${messageCharLimit} characters`
+        // first save user message the send new message save and return false
+        
         await sendMessage(profile.fb_messenger_id, newContent)
-        return await createMessage(
+        await createMessage(
             profile,
             role,
             messageDir,
             newContent,
             extra_json
         )
+        
     }
 
 
@@ -33,7 +36,7 @@ export async function submitMessage(
         await sendMessage(profile.fb_messenger_id, content.substring(0, messageCharLimit), image_urls)
     }
 
-    return await createMessage(
+    await createMessage(
         profile,
         role,
         messageDir,
@@ -41,6 +44,8 @@ export async function submitMessage(
         extra_json,
         image_urls
     )
+
+    return true
 }
 
 
