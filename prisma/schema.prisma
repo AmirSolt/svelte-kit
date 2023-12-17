@@ -1,0 +1,83 @@
+// npx prisma migrate dev --name init 
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Config {
+  id ConfigType @id
+
+  categorizer_system_message String
+  categorizer_temperature    Float
+}
+
+model Profile {
+  id              String    @id @default(uuid())
+  created_at      DateTime  @default(now())
+  fb_messenger_id String    @unique
+  country_code         String?
+  messages        Message[]
+  tickets         Ticket[]
+  searches        Search[]
+
+  @@index(fields: [fb_messenger_id], type: Hash)
+}
+
+model Message {
+  id          String      @id @default(uuid())
+  created_at  DateTime    @default(now())
+  content     String?
+  profile     Profile     @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id  String
+  message_dir MessageDir
+  role        MessageRole
+  extra_json  Json?
+  image_urls  String[]
+
+  @@index(fields: [created_at], type: BTree)
+}
+
+model Ticket {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  content    String
+  profile    Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id String
+}
+
+model Search {
+  id          String   @id @default(uuid())
+  search_term String
+  profile     Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id  String
+  asins       String[]
+}
+
+enum MessageRole {
+  NON_AI
+  SYSTEM
+  USER
+  ASSISTANT
+  TOOL
+}
+
+enum MessageDir {
+  INBOUND
+  OUTBOUND
+}
+
+enum ConfigType {
+  FREE
+  TIER_ONE
+}
+
+enum Country {
+  US
+  CA
+  UK
+}
