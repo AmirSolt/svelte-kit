@@ -1,10 +1,18 @@
-import { OpenAI } from "openai";
+import type { OpenAI } from "openai";
 import { submitMessage, submitTicket } from "./communications";
-import { type MProfile, type SearchResponse } from "../clients/customTypes";
+import type { MProfile, SearchResponse } from "../clients/customTypes";
 import { MessageDir, MessageRole } from "@prisma/client";
 import { createSearch, updateProfileCountry } from "./db";
 import { amazon } from "../clients/amazon";
 import { scoreSearchResults } from "./productAnalytics";
+import * as dotenv from 'dotenv'
+dotenv.config()
+
+
+if (process.env.DOMAIN == null) {
+    throw new Error('missing DOMAIN');
+}
+
 
 export const toolsObjects: OpenAI.ChatCompletionTool[] = [
     {
@@ -52,6 +60,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
 ]
 
 export const toolsFunc: Record<string, any> = {
+
     country: async (profile:MProfile, countryCode:string) => {
         profile = await updateProfileCountry(
             profile,
@@ -64,12 +73,17 @@ export const toolsFunc: Record<string, any> = {
             `Country set to ${countryCode}`,
         );
     },
+
+
+
+
+    // ================================================
     search: async (profile:MProfile, searchTerm:string) => {
         await submitMessage(
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            "searching...",
+            "searching... (one minute)",
         );
   
         
@@ -85,31 +99,26 @@ export const toolsFunc: Record<string, any> = {
             return
         }
 
-        createSearch(
+        const search = await createSearch(
             profile,
             searchTerm,
-            searchResponse.search_results.map(sr=>sr.asin)
+            searchResponse.search_results.map(sr=>sr.asin),
+            JSON.stringify(searchResponse.search_results)
         )
 
-        const scoredSearchResults = scoreSearchResults(searchResponse.search_results)
-        // use api to generate graph image
-
-        // submitMessage(
-        //     profile,
-        //     MessageRole.ASSISTANT,
-        //     MessageDir.OUTBOUND,
-        //     null,
-        //     []
-        // )
-        // await submitMessage(
-        //     profile,
-        //     MessageRole.ASSISTANT,
-        //     MessageDir.OUTBOUND,
-        //     `Top 3 links. Links: ${links?.join("\n")}`,
-        // );
-
-    
+        await submitMessage(
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            `Search Analytics:\n ${process.env.DOMAIN}/search_analytics/${search.id}`,
+        );
     },
+
+
+
+
+    // ================================================
+
     report: async (profile:MProfile, reportContent:string) => {
 
 

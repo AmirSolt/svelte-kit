@@ -10,8 +10,9 @@ export const POST: RequestHandler = async (event) => {
 
     console.log("message recieved")
 
-    const { Body, From } = await event.request.json()
-
+    const text = await event.request.text();
+    const params = Object.fromEntries(new URLSearchParams(text));
+    const { Body, From } = params
 
     const twimlResponse = new TwilioSDK.twiml.MessagingResponse();
     console.log("--- recieved fb messenger")

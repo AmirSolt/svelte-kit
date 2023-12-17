@@ -1,5 +1,5 @@
 import { prisma } from "../clients/prisma";
-import { ConfigType, type Message, MessageDir, MessageRole, type Config, type Profile } from "@prisma/client";
+import { ConfigType, type Message, MessageDir, MessageRole, type Config, type Profile, type Search } from "@prisma/client";
 import { redis } from "../clients/redis";
 import type { MProfile } from "../clients/customTypes";
 
@@ -22,18 +22,49 @@ export async function updateProfileCountry(profile:MProfile, countryCode:string)
     return profile
 }
 
+
+export async function getSearch(searchId: string) {
+
+    let search:Search|null|undefined
+    
+    const res = await redis.get(searchId)
+    
+    if (res==null) {
+        search = await prisma.search.findFirst({
+            where: {
+                id: searchId
+            },
+        })
+        if(search){
+            redis.set(search.id, JSON.stringify(search), "EX", defaultRedisExpiration)
+        }
+
+    } else {
+        search = JSON.parse(res)
+    }
+
+    return search
+}
+
+
+
 export async function createSearch(
     profile:MProfile,
     search_term:string,
     asins:string[],
+    search_results:any
 ){
-    return await prisma.search.create({
+    const search = await prisma.search.create({
         data:{
             profile_id:profile.id,
             search_term:search_term,
             asins:asins,
+            search_results:search_results
         },
     })
+
+    redis.set(search.id, JSON.stringify(search), "EX", defaultRedisExpiration)
+    return search
 }
 
 
