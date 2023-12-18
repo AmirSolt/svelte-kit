@@ -1,6 +1,6 @@
 import type { OpenAI } from "openai";
 import { submitMessage, submitTicket } from "./communications";
-import type { MProfile, SearchResponse } from "../clients/customTypes";
+import type { MProfile, SearchResponse } from "../../customTypes";
 import { MessageDir, MessageRole } from "@prisma/client";
 import { createSearch, updateProfileCountry } from "./db";
 import { amazon } from "../clients/amazon";
@@ -99,10 +99,13 @@ export const toolsFunc: Record<string, any> = {
             return
         }
 
+        console.log(">>>>",searchResponse.request_metadata.amazon_url)
+
         const search = await createSearch(
             profile,
             searchTerm,
             searchResponse.search_results.map(sr=>sr.asin),
+            searchResponse.request_metadata.amazon_url,
             JSON.stringify(searchResponse.search_results)
         )
 

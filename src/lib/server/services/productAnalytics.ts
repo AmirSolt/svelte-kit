@@ -1,30 +1,15 @@
-import type { SearchResult } from "../clients/customTypes";
+import type { SearchResult, ScoredSearchResult } from "../../customTypes";
 
 
-export function scoreSearchResults(searchResults:SearchResult[]):{searchResult:SearchResult, quality:number}[]{
+export function scoreSearchResults(searchResults:SearchResult[]):ScoredSearchResult[]{
 
-    const ratingWeight = 1.2
+    const ratingWeight = 1.6
     const ratingTotalWeight = 0.8
     const priceWeight = 0.6
 
 
-    // searchResults = searchResults.filter(sr=>{
-    //     return sr.rating!=null && sr.ratings_total!=null
-    // })
-
-
-    // const {std:ratingSTD, mean:ratingMean} = getStdMean(
-    //     searchResults.map(sr=>sr.rating??-1)
-    // )
-    // const {std:ratingTotalSTD, mean:ratingTotalMean} = getStdMean(
-    //     searchResults.map(sr=>sr.ratings_total??-1)
-    // )
-    // const {std:priceSTD, mean:priceMean} = getStdMean(
-    //     searchResults.map(sr=>sr.price.value)
-    // )
-
     const cleanedResults = searchResults.filter(sr => {
-        return sr.rating != null && sr.ratings_total != null && sr.price != null;
+        return sr.rating != null && sr.ratings_total != null && sr.price!=null && sr.price.value != null;
       });
     
     const {std:ratingSTD, mean:ratingMean}  = getStdMean(cleanedResults.map(sr => sr.rating!));
@@ -43,7 +28,8 @@ export function scoreSearchResults(searchResults:SearchResult[]):{searchResult:S
 
         return{
             searchResult:sr,
-            quality:score
+            quality:score,
+            qualityPrice:(score/sr.price.value)
         }
     })
 }
@@ -62,4 +48,6 @@ function getStdMean(lst:number[]){
 function zScore(std:number, mean:number, elementValue: number): number {
     return (elementValue - mean) / std;
 }
+
+
 

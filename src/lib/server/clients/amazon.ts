@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import type {SearchResponse} from './customTypes'
+import type {SearchResponse} from '../../customTypes'
 
 if (process.env.ASINDATAAPI_KEY == null) {
     throw new Error('missing ASINDATAAPI_KEY');

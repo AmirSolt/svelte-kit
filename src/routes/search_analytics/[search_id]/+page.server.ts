@@ -1,4 +1,4 @@
-import type { SearchResult } from '$lib/server/clients/customTypes.js';
+import type { SearchResult } from '$lib/customTypes.js';
 import { getSearch } from '$lib/server/services/db.js';
 import { error } from '@sveltejs/kit';
 import { scoreSearchResults } from '$lib/server/services/productAnalytics.js';
@@ -17,10 +17,12 @@ export const load = async ({params}) => {
     }
 
     const searchResults:SearchResult[] = JSON.parse(search.search_results as string)
-    const scoredSearchResults = scoreSearchResults(searchResults)
+    let scoredSearchResults = scoreSearchResults(searchResults)
+    scoredSearchResults = scoredSearchResults.sort((a,b)=>{return a.qualityPrice-b.qualityPrice}).slice(-10).reverse()
 
     return {
-        scoredSearchResults
+        scoredSearchResults,
+        search_url:search.search_url
     }
 
 };

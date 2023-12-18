@@ -1,7 +1,7 @@
 import { client, twilioPageId, TWILIO_PHONE_NUMBER, ADMIN_NUMBER } from "../clients/twilio";
 import { createMessage, createTicket } from "./db";
 import { ConfigType, type Message, MessageDir, MessageRole, type Config, type Profile, type Ticket } from "@prisma/client";
-import type { MProfile } from "../clients/customTypes";
+import type { MProfile } from "../../customTypes";
 
 
 const messageCharLimit = 400
@@ -16,10 +16,17 @@ export async function submitMessage(
     image_urls: string[]=[]
     ):Promise<boolean> {
 
-    if(messageDir===MessageDir.INBOUND && content && content.length >= messageCharLimit && role!==MessageRole.TOOL){
+    if(messageDir===MessageDir.INBOUND && content && content.length >= messageCharLimit){
         const newContent = `Sorry, but your message exceeds ${messageCharLimit} characters`
         // first save user message the send new message save and return false
-        
+        await createMessage(
+            profile,
+            role,
+            messageDir,
+            content,
+            extra_json,
+            image_urls
+        )
         await sendMessage(profile.fb_messenger_id, newContent)
         await createMessage(
             profile,
@@ -28,7 +35,7 @@ export async function submitMessage(
             newContent,
             extra_json
         )
-        
+        return false
     }
 
 

@@ -1,7 +1,7 @@
 import { prisma } from "../clients/prisma";
 import { ConfigType, type Message, MessageDir, MessageRole, type Config, type Profile, type Search } from "@prisma/client";
 import { redis } from "../clients/redis";
-import type { MProfile } from "../clients/customTypes";
+import type { MProfile } from "../../customTypes";
 
 // expire redis records after x
 const defaultRedisExpiration = 60*60
@@ -52,6 +52,7 @@ export async function createSearch(
     profile:MProfile,
     search_term:string,
     asins:string[],
+    search_url:string,
     search_results:any
 ){
     const search = await prisma.search.create({
@@ -59,6 +60,7 @@ export async function createSearch(
             profile_id:profile.id,
             search_term:search_term,
             asins:asins,
+            search_url,
             search_results:search_results
         },
     })

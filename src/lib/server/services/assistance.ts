@@ -1,8 +1,8 @@
 import { type Config, type Message, MessageDir, MessageRole, type Profile } from "@prisma/client";
 import { openai } from "../clients/openai";
-import { OpenAI } from "openai";
+import type { OpenAI } from "openai";
 import { toolsFunc, toolsObjects } from "./tools";
-import type { MProfile } from "../clients/customTypes";
+import type { MProfile } from "../../customTypes";
 import { submitMessage } from "./communications";
 
 

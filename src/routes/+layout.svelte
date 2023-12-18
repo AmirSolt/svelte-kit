@@ -2,4 +2,9 @@
 	import '../app.postcss';
 </script>
 
-<slot />
+
+<div >
+	<slot />
+</div>
+
+
