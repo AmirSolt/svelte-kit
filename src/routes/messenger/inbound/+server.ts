@@ -14,6 +14,7 @@ const welcomeMessage = `Welcome to
 🤖 Quick disclaimer: This is an automatic chatbot. Your virtual assistant is an artificial intelligence and not a human. 
 🆘 You can ask your virtual assistant 'What can you do?'
 `
+const countryMessage = "What country are you from? (default:US)"
 
 
 export const POST: RequestHandler = async (event) => {
@@ -34,9 +35,12 @@ export const POST: RequestHandler = async (event) => {
 
     if(profile == null){
         profile = await createProfile(config, From)
-        await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.INBOUND, Body)
-        await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.OUTBOUND, welcomeMessage)
-        await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.OUTBOUND, "What country are you from? (default:US)")
+        if(await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.INBOUND, Body)){
+            if(await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.OUTBOUND, welcomeMessage)){
+                if(await submitMessage(config, profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, countryMessage)){
+                }
+            }
+        }
         return new Response(twimlResponse.toString(), {
             headers: {
             'Content-Type': 'application/xml',
