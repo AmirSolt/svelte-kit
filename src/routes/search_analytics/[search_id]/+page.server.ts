@@ -2,10 +2,12 @@ import type { SearchResult } from '$lib/customTypes.js';
 import { getSearch } from '$lib/server/services/db.js';
 import { error } from '@sveltejs/kit';
 import { scoreSearchResults } from '$lib/server/services/productAnalytics.js';
+import type { Config } from '@prisma/client';
 
 
-export const load = async ({params}) => {
+export const load = async ({params, locals}) => {
     const searchId:string|null|undefined = params.search_id
+    const config:Config = locals.config
 
     if(typeof searchId != "string"){
         throw error(404, "Url is broken")
@@ -17,8 +19,8 @@ export const load = async ({params}) => {
     }
 
     const searchResults:SearchResult[] = JSON.parse(search.search_results as string)
-    let scoredSearchResults = scoreSearchResults(searchResults)
-    scoredSearchResults = scoredSearchResults.sort((a,b)=>{return a.qualityPrice-b.qualityPrice}).slice(-10).reverse()
+    let scoredSearchResults = scoreSearchResults(config, searchResults)
+    scoredSearchResults = scoredSearchResults.sort((a,b)=>{return a.qualityPrice-b.qualityPrice}).slice(-config.top_products_count).reverse()
 
     return {
         scoredSearchResults,

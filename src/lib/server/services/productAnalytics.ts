@@ -1,11 +1,12 @@
+import type { Config } from "@prisma/client";
 import type { SearchResult, ScoredSearchResult } from "../../customTypes";
 
 
-export function scoreSearchResults(searchResults:SearchResult[]):ScoredSearchResult[]{
+export function scoreSearchResults(config:Config, searchResults:SearchResult[]):ScoredSearchResult[]{
 
-    const ratingWeight = 1.6
-    const ratingTotalWeight = 0.8
-    const priceWeight = 0.6
+    const ratingWeight = config.rating_weight
+    const ratingTotalWeight = config.total_ratings_weight
+    const priceWeight = config.price_weight
 
 
     const cleanedResults = searchResults.filter(sr => {
@@ -17,21 +18,33 @@ export function scoreSearchResults(searchResults:SearchResult[]):ScoredSearchRes
     const {std:priceSTD, mean:priceMean} = getStdMean(cleanedResults.map(sr => sr.price!.value));
 
 
+      const scores = cleanedResults.map(sr=>{
+            return zScore(ratingSTD,ratingMean,sr.rating??-1)*ratingWeight
+                + zScore(ratingTotalSTD,ratingTotalMean,sr.ratings_total??-1)*ratingTotalWeight
+                + zScore(priceSTD,priceMean,sr.price.value)*priceWeight
+      })
+
+      const maxScore = Math.max(...scores)
+      const minScore = Math.min(...scores)
 
 
-
-    return cleanedResults.map(sr=>{
-
-        const score = zScore(ratingSTD,ratingMean,sr.rating??-1)*ratingWeight
-             + zScore(ratingTotalSTD,ratingTotalMean,sr.ratings_total??-1)*ratingTotalWeight
-              + zScore(priceSTD,priceMean,sr.price.value)*priceWeight
-
+    let scoredSearchResults = cleanedResults.map((sr, i)=>{
+        const quality = (scores[i] - minScore) / (maxScore - minScore)
         return{
             searchResult:sr,
-            quality:score,
-            qualityPrice:(score/sr.price.value)
+            quality:quality,
+            qualityPrice:(quality/sr.price.value)
         }
     })
+
+    // const smallestScore = Math.min(...scoredSearchResults.map(r=>r.quality))
+    // scoredSearchResults.forEach(r=>{
+    //     r.quality += (x - min) / (max - min)
+    //     r.qualityPrice = (r.quality/r.searchResult.price.value)
+    // })
+
+    return scoredSearchResults
+
 }
 
 

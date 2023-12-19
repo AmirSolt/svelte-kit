@@ -11,25 +11,41 @@
 	const maxQuality = Math.max(...scoredSearchResults.map((r) => r.quality));
 
 
-	let containers: { id: string; element: HTMLElement|null }[]=[];
-	let dataset = updateDataset();
+	let containers: { id: string; element: HTMLElement|null }[]=scoredSearchResults.map(r=>{
+		return {id:r.searchResult.asin, element:null}
+	});
+
+	let dataset = scoredSearchResults.map((r) => {
+			return {
+				id: r.searchResult.asin,
+				x: r.quality,
+				y: r.searchResult.price.value,
+			};
+	});
 	const axLabels = {
 		xLabel: 'Quality',
 		yLabel: 'Price'
 	};
+	const areaPoints = [
+		{
+			id: "area",
+			x: 0,
+			y: 0,
+		},
+		{
+			id: "area",
+			x: maxQuality,
+			y: 0,
+		},
+		{
+			id: "area",
+			x: maxQuality,
+			y: maxPrice,
+		},
+	]
 
-	function updateDataset() {
-		return scoredSearchResults.map((r) => {
-			return {
-				x: r.quality,
-				y: r.searchResult.price.value,
-				circleClass: r.searchResult.asin === selectedAsin ? 'selectedCircle' : 'circle'
-			};
-		});
-	}
 	function onCenter(container:{ id: string; element: HTMLElement|null }) {
 		selectedAsin = container.id;
-		dataset = updateDataset();
 	}
 
 
@@ -71,18 +87,28 @@
 	});
 </script>
 
+
+<svelte:head>
+	<meta property="og:title" content="Product search analyzer" />
+	<meta property="og:image" content="%sveltekit.assets%/chart.png" />
+</svelte:head>
+
+
+
 <div class="flex flex-col justify-center items-center w-full">
 	<div class="p-2 w-full sticky top-0 z-10 card h-64 drop-shadow-lg">
-		<ScatterPlot points={dataset} labels={axLabels} />
+		<ScatterPlot points={dataset} labels={axLabels} selectedId={selectedAsin} areaPoints={areaPoints} />
 	</div>
 
 	<br />
 
 	<div class="card flex flex-col justify-center items-center gap-4 p-4">
-		<div>disclaimer</div>
+		<p>
+			Disclaimer: Links included on this page maybe affiliated with third parties and we may recieve commission or other compensation from them. 
+		</p>
 
 		<a class="btn variant-filled" href={search_url} target="_blank" rel="noreferrer">
-			Search Link
+			Original Search Link
 		</a>
 	</div>
 
@@ -94,8 +120,7 @@
 
 	<div class="flex flex-col justify-center items-center p-4 gap-4 max-w-5xl">
 		{#each scoredSearchResults as scoredSearchResult, i}
-			{containers.push({id:scoredSearchResult.searchResult.asin, element:null})}
-			<div bind:this={containers[i].element}>
+			<div class="w-full" bind:this={containers[i].element}>
 				<ProductCard
 					{scoredSearchResult}
 					isSelected={selectedAsin === scoredSearchResult.searchResult.asin}

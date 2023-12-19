@@ -13,8 +13,15 @@ CREATE TYPE "Country" AS ENUM ('US', 'CA', 'UK');
 -- CreateTable
 CREATE TABLE "Config" (
     "id" "ConfigType" NOT NULL,
-    "categorizer_system_message" TEXT NOT NULL,
-    "categorizer_temperature" DOUBLE PRECISION NOT NULL,
+    "rating_weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
+    "total_ratings_weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
+    "price_weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
+    "categorizer_system_message" TEXT NOT NULL DEFAULT 'You are a virtual assistant on facebook messenger. Help the customer with prompts. Keep your responses very short, below 200 charachters.',
+    "categorizer_temperature" DOUBLE PRECISION NOT NULL DEFAULT 1,
+    "top_products_count" INTEGER NOT NULL DEFAULT 15,
+    "disclaimer_repeat_message_count" INTEGER NOT NULL DEFAULT 150,
+    "message_char_limit" INTEGER NOT NULL DEFAULT 250,
+    "load_message_to_client_count" INTEGER NOT NULL DEFAULT 10,
 
     CONSTRAINT "Config_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +66,8 @@ CREATE TABLE "Search" (
     "search_term" TEXT NOT NULL,
     "profile_id" TEXT NOT NULL,
     "asins" TEXT[],
+    "search_url" TEXT NOT NULL,
+    "search_results" JSONB NOT NULL,
 
     CONSTRAINT "Search_pkey" PRIMARY KEY ("id")
 );

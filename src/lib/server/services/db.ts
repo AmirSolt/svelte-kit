@@ -4,10 +4,9 @@ import { redis } from "../clients/redis";
 import type { MProfile } from "../../customTypes";
 
 // expire redis records after x
-const defaultRedisExpiration = 60*60
+const defaultRedisExpiration = 60*10
 
-// fetch message history with profile
-const lastMessagesLoadedin = 10
+
 
 
 export async function updateProfileCountry(profile:MProfile, countryCode:string){
@@ -49,6 +48,7 @@ export async function getSearch(searchId: string) {
 
 
 export async function createSearch(
+    config:Config,
     profile:MProfile,
     search_term:string,
     asins:string[],
@@ -71,9 +71,12 @@ export async function createSearch(
 
 
 export async function createTicket(
+    config:Config,
     profile: MProfile,
     content: string 
     ){
+
+
 
     const ticket = await prisma.ticket.create({
         data:{
@@ -88,6 +91,7 @@ export async function createTicket(
 
 
 export async function createMessage(
+    config:Config,
     profile: MProfile,
     role:MessageRole,
     messageDir:MessageDir,
@@ -116,31 +120,25 @@ export async function createMessage(
 }
 
 
-export async function createProfile(fbMessengerId: string){
+export async function createProfile(config:Config, fbMessengerId: string):Promise<MProfile>{
     const profile = await prisma.profile.create({
         data:{
             fb_messenger_id:fbMessengerId
-        },
-        include: {
-            messages: {
-                take: -lastMessagesLoadedin,
-                orderBy: {
-                    created_at: 'asc',
-                },
-            },
-            _count: {
-                select: { messages: true },
-            },
         }
     })
+    const mPorfile = {
+        ...profile,
+        messages:[],
+        _count:{messages:0}
+    } as MProfile
 
-    redis.set(fbMessengerId, JSON.stringify(profile), "EX", defaultRedisExpiration)
+    redis.set(fbMessengerId, JSON.stringify(mPorfile), "EX", defaultRedisExpiration)
 
-    return profile
+    return mPorfile
 }
 
 
-export async function getProfile(fbMessengerId: string) {
+export async function getProfile(config:Config,fbMessengerId: string) {
 
     let profile:MProfile | null | undefined
 
@@ -153,7 +151,7 @@ export async function getProfile(fbMessengerId: string) {
             },
             include: {
                 messages: {
-                    take: -lastMessagesLoadedin,
+                    take: -config.load_message_to_client_count,
                     orderBy: {
                         created_at: 'desc',
                     },
@@ -178,20 +176,32 @@ export async function getProfile(fbMessengerId: string) {
 
 export async function getConfig() {
 
-    let config:Config|null|undefined
+    return await prisma.config.findFirst({ where: { id: ConfigType.FREE } })
 
-    // Fetch and cache 'Config', and save to locals
-    const res = await redis.get(ConfigType.FREE)
 
-    if (res==null) {
-        const configValue = await prisma.config.findFirst({ where: { id: ConfigType.FREE } })
-        if(configValue){
-            redis.set(ConfigType.FREE, JSON.stringify(configValue))
-            config = configValue
+    // let config:Config|null|undefined
+
+    // // Fetch and cache 'Config', and save to locals
+    // const res = await redis.get(ConfigType.FREE)
+
+    // if (res==null) {
+    //     const configValue = await prisma.config.findFirst({ where: { id: ConfigType.FREE } })
+    //     if(configValue){
+    //         redis.set(ConfigType.FREE, JSON.stringify(configValue))
+    //         config = configValue
+    //     }
+    // } else {
+    //     config = JSON.parse(res)
+    // }
+
+    // return config
+}
+
+
+export async function createConfig():Promise<Config>{
+    return await prisma.config.create({
+        data:{
+            id:ConfigType.FREE
         }
-    } else {
-        config = JSON.parse(res)
-    }
-
-    return config
+    })
 }

@@ -4,22 +4,23 @@ import { ConfigType, type Message, MessageDir, MessageRole, type Config, type Pr
 import type { MProfile } from "../../customTypes";
 
 
-const messageCharLimit = 400
 
 
 export async function submitMessage(
+    config:Config,
     profile: MProfile,
-    role:MessageRole,
-    messageDir:MessageDir,
+    role: MessageRole,
+    messageDir: MessageDir,
     content: string | null | undefined = undefined,
-    extra_json: any|undefined|null=undefined,
-    image_urls: string[]=[]
-    ):Promise<boolean> {
+    extra_json: any | undefined | null = undefined,
+    image_urls: string[] = []
+): Promise<boolean> {
 
-    if(messageDir===MessageDir.INBOUND && content && content.length >= messageCharLimit){
-        const newContent = `Sorry, but your message exceeds ${messageCharLimit} characters`
+    if (messageDir === MessageDir.INBOUND && content && content.length >= config.message_char_limit) {
+        const newContent = `Sorry, but your message exceeds ${config.message_char_limit} characters`
         // first save user message the send new message save and return false
         await createMessage(
+            config,
             profile,
             role,
             messageDir,
@@ -29,6 +30,7 @@ export async function submitMessage(
         )
         await sendMessage(profile.fb_messenger_id, newContent)
         await createMessage(
+            config,
             profile,
             role,
             messageDir,
@@ -39,15 +41,16 @@ export async function submitMessage(
     }
 
 
-    if(messageDir===MessageDir.OUTBOUND && content && role!==MessageRole.TOOL){
-        await sendMessage(profile.fb_messenger_id, content.substring(0, messageCharLimit), image_urls)
+    if (messageDir === MessageDir.OUTBOUND && content && role !== MessageRole.TOOL) {
+        await sendMessage(profile.fb_messenger_id, content.substring(0, config.message_char_limit), image_urls)
     }
 
     await createMessage(
+        config,
         profile,
         role,
         messageDir,
-        content?.substring(0, messageCharLimit),
+        content?.substring(0, config.message_char_limit),
         extra_json,
         image_urls
     )
@@ -58,12 +61,16 @@ export async function submitMessage(
 
 
 export async function submitTicket(
+    config:Config,
     profile: MProfile,
-    content: string):Promise<Ticket> {
+    content: string): Promise<Ticket> {
 
-    await sendSMS(ADMIN_NUMBER, "--- Ticket: \n"+content)
+    const pageLink = `https://www.facebook.com/profile.php?id=${profile.fb_messenger_id}`
+    const newContent = "--- Ticket: \n" + content + `\n page link:${pageLink}`
 
-    return await createTicket(profile, content)
+    await sendSMS(ADMIN_NUMBER, newContent)
+
+    return await createTicket(config, profile, newContent)
 }
 
 
@@ -72,7 +79,7 @@ export async function submitTicket(
 
 
 
-async function sendMessage(sendTo: string, text: string, image_urls:string[]=[]): Promise<void> {
+async function sendMessage(sendTo: string, text: string, image_urls: string[] = []): Promise<void> {
 
 
     try {
@@ -80,7 +87,7 @@ async function sendMessage(sendTo: string, text: string, image_urls:string[]=[])
             from: `messenger:${twilioPageId}`,
             body: text,
             to: sendTo,
-            mediaUrl:image_urls
+            mediaUrl: image_urls
         });
         console.log("fb messenger sent with SID:", message.sid);
     } catch (error) {

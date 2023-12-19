@@ -24,7 +24,6 @@
 		<header class="flex flex-col justify-center items-center">
 			<div class="flex justify-between w-full p-1">
 				<h1>
-					{scoredSearchResult.searchResult.asin}
 					{index + 1}
 				</h1>
 			</div>

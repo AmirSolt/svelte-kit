@@ -3,9 +3,13 @@
 	import { scaleLinear, type ScaleLinear } from 'd3-scale';
 	import { extent } from 'd3-array';
 
-    interface Point{ x: number; y: number, circleClass:string }
+    interface Point{ id:string, x: number; y: number}
 	export let points: Point[];
 	export let labels: { xLabel: string; yLabel: string };
+	export let selectedId:string|null|undefined
+	export let areaPoints:Point[]=[]
+
+	let selectedPoint:Point|null|undefined
 	let svg: Element;
 	
 	let height = 0;
@@ -14,6 +18,10 @@
 
 	const padding = { top: 20, right: 20, bottom: 45, left: 50 };
 
+	$: if(selectedId){
+		selectedPoint = points.find(p=>p.id==selectedId)
+	}
+
 	onMount(() => {
 		resize();
 	});
@@ -21,24 +29,27 @@
     let xScale: ScaleLinear<number, number>;
     let yScale: ScaleLinear<number, number>;
     updateScales()
+	
 
-    function moveToLastSelected(points: Point[], keyword:string="selectedCircle"): Point[] {
-        const selectedIndex = points.findIndex(point => point.circleClass === keyword);
-        if (selectedIndex === -1 || selectedIndex === points.length - 1) {
-          return points;
-        }
-        const selectedElement = points[selectedIndex];
-        points.splice(selectedIndex, 1);
-        points.push(selectedElement);
-        return points;
-    }
+	$: areaPointsPath = areaPoints.map(p => `${xScale(p.x)},${yScale(p.y)}`).join(' ') 
+	$: console.log(areaPointsPath)
+
+
+
+
 
 	function updateScales() {
+
+		let [minX, maxX] = extent(points, (d) => d.x);
+		let [minY, maxY] = extent(points, (d) => d.y);
+
+		if(maxX==null) maxX = 1.2
+		if(maxY==null) maxY = 500
 		xScale = scaleLinear()
-			.domain(extent(points, d => d.x)).nice()
+			.domain([0, maxX]).nice()
 			.range([padding.left, width - padding.right]);
 		yScale = scaleLinear()
-			.domain(extent(points, d => d.y)).nice()
+			.domain([0, maxY]).nice()
 			.range([height - padding.bottom, padding.top]);
 	}
 
@@ -70,14 +81,29 @@
 		{/each}
 	</g>
 
+
+	<linearGradient id="greenFade" x1="100%" y1="100%" x2="0%" y2="0%">
+		<stop offset="0%" style="stop-color: green; stop-opacity: 0.8;" />
+		<stop offset="30%" style="stop-color: green; stop-opacity: 0.4;" />
+		<stop offset="100%" style="stop-color: green; stop-opacity: 0;" />
+	  </linearGradient>
+	{#if areaPointsPath}
+		<polygon points="{areaPointsPath}" class="area-shape"  fill="url(#greenFade)"  />
+	{/if}
+
 	<!-- labels for axes -->
 	<text class="label " transform="translate({padding.left/4},{height/2}) rotate(-90)">{labels.yLabel}</text>
 	<text class="label " x="{width/2}" y="{height - padding.bottom/8}">{labels.xLabel}</text>
 
 	<!-- data -->
-	{#each moveToLastSelected(points) as point}
-            <circle class=" {point.circleClass} " cx="{xScale(point.x)}" cy="{yScale(point.y)}" r="{circleRadius}" />
+	{#each points as point}
+            <circle class=" circle " cx="{xScale(point.x)}" cy="{yScale(point.y)}" r="{circleRadius}" />
 	{/each}
+	{#if selectedPoint}
+		<circle class=" selectedCircle " cx="{xScale(selectedPoint.x)}" cy="{yScale(selectedPoint.y)}" r="{circleRadius+1}" />
+	{/if}
+
+
 </svg>
 
 <style>
@@ -87,15 +113,15 @@
 	}
 
 	.circle {
-		fill: blue;
+		fill: rgba(0,0,0,0);
 		fill-opacity: 0.7;
-		stroke: rgba(0, 0, 0, 0.5);
+		stroke: rgba(255,255,255, 1);
         z-index: 0;
 	}
     .selectedCircle {
-		fill: red;
-		fill-opacity: 0.9;
-		stroke: rgba(0, 0, 0, 0.5);
+		fill: #f70b32;
+		fill-opacity:1;
+		stroke: rgb(10, 60, 223);
         z-index: 100;
 	}
 

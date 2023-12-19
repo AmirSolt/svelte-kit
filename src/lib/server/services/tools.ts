@@ -1,10 +1,9 @@
 import type { OpenAI } from "openai";
 import { submitMessage, submitTicket } from "./communications";
 import type { MProfile, SearchResponse } from "../../customTypes";
-import { MessageDir, MessageRole } from "@prisma/client";
+import { MessageDir, MessageRole, type Config } from "@prisma/client";
 import { createSearch, updateProfileCountry } from "./db";
 import { amazon } from "../clients/amazon";
-import { scoreSearchResults } from "./productAnalytics";
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -19,7 +18,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "country",
-            description: "Store user's country for better search results.",
+            description: "Save user's country for better search results. Default country is US.",
             parameters: {
                 type: "object",
                 properties: {
@@ -61,12 +60,16 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
 
 export const toolsFunc: Record<string, any> = {
 
-    country: async (profile:MProfile, countryCode:string) => {
+    country: async (config:Config, profile:MProfile, inputArgs:{countryCode:string}) => {
+        const {countryCode} = inputArgs
+
+        console.log("Country tool:",countryCode)
         profile = await updateProfileCountry(
             profile,
             countryCode
         )
         submitMessage(
+            config,
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
@@ -78,8 +81,13 @@ export const toolsFunc: Record<string, any> = {
 
 
     // ================================================
-    search: async (profile:MProfile, searchTerm:string) => {
+    search: async (config:Config, profile:MProfile, inputArgs:{searchTerm:string}) => {
+
+        const {searchTerm} = inputArgs
+
+        console.log("Search tool:",searchTerm)
         await submitMessage(
+            config,
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
@@ -91,6 +99,7 @@ export const toolsFunc: Record<string, any> = {
         const searchResponse:SearchResponse|null = await amazon.search(domain, searchTerm)
         if(searchResponse==null){
             await submitMessage(
+                config,
                 profile,
                 MessageRole.ASSISTANT,
                 MessageDir.OUTBOUND,
@@ -99,9 +108,9 @@ export const toolsFunc: Record<string, any> = {
             return
         }
 
-        console.log(">>>>",searchResponse.request_metadata.amazon_url)
 
         const search = await createSearch(
+            config,
             profile,
             searchTerm,
             searchResponse.search_results.map(sr=>sr.asin),
@@ -110,6 +119,7 @@ export const toolsFunc: Record<string, any> = {
         )
 
         await submitMessage(
+            config,
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
@@ -122,18 +132,23 @@ export const toolsFunc: Record<string, any> = {
 
     // ================================================
 
-    report: async (profile:MProfile, reportContent:string) => {
+    report: async (config:Config, profile:MProfile, inputArgs:{reportContent:string}) => {
 
+        const {reportContent} = inputArgs
+
+        console.log("Report tool:",reportContent)
 
         await submitTicket(
+            config,
             profile,
             reportContent,
         )
         await submitMessage(
+            config,
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            "A human will review your report shortly.",
+            "A human will review your report, shortly.",
         )
     }
 };

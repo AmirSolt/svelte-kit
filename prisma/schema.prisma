@@ -12,8 +12,17 @@ datasource db {
 model Config {
   id ConfigType @id
 
-  categorizer_system_message String
-  categorizer_temperature    Float
+  rating_weight  Float  @default(1)
+  total_ratings_weight  Float  @default(1)
+  price_weight  Float  @default(1)
+
+  categorizer_system_message String @default("You are a virtual assistant on facebook messenger. Help the customer with prompts. Keep your responses very short, below 200 charachters.")
+  categorizer_temperature    Float  @default(1)
+
+  top_products_count Int  @default(15)
+  disclaimer_repeat_message_count Int  @default(150)
+  message_char_limit Int  @default(250)
+  load_message_to_client_count Int  @default(10)
 }
 
 model Profile {

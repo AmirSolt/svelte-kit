@@ -56,6 +56,7 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
     const responseMessage = chatCompletion.choices[0].message
 
     await submitMessage(
+        config,
         profile,
         MessageRole.ASSISTANT,
         MessageDir.OUTBOUND,
@@ -75,6 +76,7 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
             responseMessage.tool_calls.map(toolCall => (async () => {
 
                 await submitMessage(
+                    config,
                     profile,
                     MessageRole.TOOL,
                     MessageDir.OUTBOUND,
@@ -88,14 +90,21 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
 
         await Promise.allSettled(
             responseMessage.tool_calls.map(toolCall => (async () => {
-                // missing await added before the submitMessage
-                console.log("--- tool call running:");
-                const functionName = toolCall.function.name;
-                const functionToCall = toolsFunc[functionName];
-                // const functionArgs = JSON.parse(toolCall.function.arguments);
-                // await functionToCall(profile, ...functionArgs);
-                await functionToCall(profile);
 
+                try {
+                    const functionName = toolCall.function.name;
+                    const functionToCall = toolsFunc[functionName];
+                    const functionArgs = JSON.parse(toolCall.function.arguments);
+                    await functionToCall(config, profile, functionArgs);
+                } catch (error) {
+                    await submitMessage(
+                        config,
+                        profile,
+                        MessageRole.ASSISTANT,
+                        MessageDir.OUTBOUND,
+                        `Error: Server encountered an error. If the error is severe, you can notify the developer like so "report ...".`,
+                    );
+                }
             })())
         );
     }
