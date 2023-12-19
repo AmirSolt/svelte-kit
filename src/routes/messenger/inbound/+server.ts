@@ -9,11 +9,11 @@ import { callCompletion } from '$lib/server/services/assistance';
 
 
 
-const welcomeMessage = `⭐ Welcome to Product Search Analyzer.`
+const welcomeMessage = `⭐ Welcome to Product Analyzer.`
 const disclaimerMessage = `🤖 Quick disclaimer: This is a chatbot and not a human.`
 const tutorialMessage = `🆘 Ask your virtual assistant "What can you do?" for more information.`
 const countryMessage = "🗺️ What country are you from? (default:US)"
-const introMessage = `${welcomeMessage}\n${disclaimerMessage}\n${tutorialMessage}\n${countryMessage}`
+const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${tutorialMessage}\n\n${countryMessage}`
 
 export const POST: RequestHandler = async (event) => {
 
