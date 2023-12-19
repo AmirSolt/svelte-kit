@@ -153,7 +153,7 @@ export async function getProfile(config:Config,fbMessengerId: string) {
                 messages: {
                     take: -config.load_message_to_client_count,
                     orderBy: {
-                        created_at: 'desc',
+                        created_at: 'asc',
                     },
                 },
                 _count: {

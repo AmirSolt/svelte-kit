@@ -18,10 +18,11 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
 
     const chatMessages = profile.messages.filter(m => m.role != MessageRole.NON_AI).map(m => {
         if (m.role == MessageRole.TOOL) {
+            const extrajson = m.extra_json as any
             return {
                 role: m.role.toLowerCase(),
                 content: m.content ?? "",
-                tool_call_id: m.extra_json
+                tool_call_id: extrajson?.tool_call_id
             } as OpenAI.ChatCompletionToolMessageParam
         }
 
@@ -81,7 +82,7 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
                     MessageRole.TOOL,
                     MessageDir.OUTBOUND,
                     "Data delivered",
-                    toolCall.id,
+                    {tool_call_id:toolCall.id},
                 );
             })())
         );
