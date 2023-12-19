@@ -21,28 +21,28 @@ export const handle: Handle = async ({ event, resolve }) => {
       })
 }
 
-export const handleError: HandleServerError = async ({ error, event }) => {
-	console.log("hooks.server.ts:handleError -> ",event.url, error)
+// export const handleError: HandleServerError = async ({ error, event }) => {
+// 	console.log("hooks.server.ts:handleError -> ",event.url, error)
 
-    const config = event.locals.config
+//     const config = event.locals.config
 
-    const text = await event.request.text();
-    const params = Object.fromEntries(new URLSearchParams(text));
-    const { Body, From } = params
+//     const text = await event.request.text();
+//     const params = Object.fromEntries(new URLSearchParams(text));
+//     const { Body, From } = params
 
-    let profile = await getProfile(config, From)
-    if (profile == null) {
-        console.log("hooks.server.ts: Could not find profile within error handling")
-        return {message:"hooks.server.ts: Could not find profile within error handling"}
-    }
+//     let profile = await getProfile(config, From)
+//     if (profile == null) {
+//         console.log("hooks.server.ts: Could not find profile within error handling")
+//         return {message:"hooks.server.ts: Could not find profile within error handling"}
+//     }
 
-    await submitMessage(
-        config,
-        profile,
-        MessageRole.ASSISTANT,
-        MessageDir.OUTBOUND,
-        `Error: Server encountered an error. If the error is severe, you can notify the developer like so "report ...".`,
-    );
-    return {message:"Sent Error message to sender"}
-}
+//     await submitMessage(
+//         config,
+//         profile,
+//         MessageRole.ASSISTANT,
+//         MessageDir.OUTBOUND,
+//         `Error: Server encountered an error. If the error is severe, you can notify the developer like so "report ...".`,
+//     );
+//     return {message:"Sent Error message to sender"}
+// }
 
