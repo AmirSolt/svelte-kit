@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit'
-import { getProfile, createProfile } from '$lib/server/services/db';
+import { getProfile, createProfile, createMessage } from '$lib/server/services/db';
 import { toolsFunc } from '$lib/server/services/tools';
 import TwilioSDK from 'twilio';
 import type { Config } from '@prisma/client';
@@ -9,13 +9,11 @@ import { callCompletion } from '$lib/server/services/assistance';
 
 
 
-const welcomeMessage = `Welcome to 
-⭐ Product Search Analyzer ⭐.
-🤖 Quick disclaimer: This is an automatic chatbot. Your virtual assistant is an artificial intelligence and not a human. 
-🆘 You can ask your virtual assistant 'What can you do?'
-`
-const countryMessage = "What country are you from? (default:US)"
-
+const welcomeMessage = `⭐ Welcome to Product Search Analyzer.`
+const disclaimerMessage = `🤖 Quick disclaimer: This is a chatbot and not a human.`
+const tutorialMessage = `🆘 Ask your virtual assistant "What can you do?" for more information.`
+const countryMessage = "🗺️ What country are you from? (default:US)"
+const introMessage = `${welcomeMessage}\n${disclaimerMessage}\n${tutorialMessage}\n${countryMessage}`
 
 export const POST: RequestHandler = async (event) => {
 
@@ -32,15 +30,13 @@ export const POST: RequestHandler = async (event) => {
 
     let profile = await getProfile(config, From)
 
-
     if(profile == null){
         profile = await createProfile(config, From)
-        if(await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.INBOUND, Body)){
-            if(await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.OUTBOUND, welcomeMessage)){
-                if(await submitMessage(config, profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, countryMessage)){
-                }
-            }
-        }
+        await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.INBOUND, Body)
+        await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.OUTBOUND, introMessage)
+        await createMessage(config, profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, countryMessage)
+    
+        
         return new Response(twimlResponse.toString(), {
             headers: {
             'Content-Type': 'application/xml',

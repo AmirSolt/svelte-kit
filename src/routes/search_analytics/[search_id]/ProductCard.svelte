@@ -24,7 +24,12 @@
 		<header class="flex flex-col justify-center items-center">
 			<div class="flex justify-between w-full p-1">
 				<h1>
-					{index + 1}
+					{index + 1}.
+				</h1>
+				<h1 class="{isSelected
+					? 'text-primary-500'
+					: ''}">
+					Quality Score: {scoredSearchResult.quality.toFixed(2)}
 				</h1>
 			</div>
 		</header>

@@ -96,7 +96,7 @@ export async function createMessage(
     role:MessageRole,
     messageDir:MessageDir,
     content: string | null | undefined = undefined,
-    extra_json:any|undefined|null,
+    extra_json:any|undefined|null=undefined,
     image_urls:string[]=[]
     ){
 
@@ -151,7 +151,7 @@ export async function getProfile(config:Config,fbMessengerId: string) {
             },
             include: {
                 messages: {
-                    take: -config.load_message_to_client_count,
+                    take: config.load_message_to_client_count,
                     orderBy: {
                         created_at: 'asc',
                     },

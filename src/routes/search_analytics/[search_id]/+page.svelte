@@ -115,10 +115,10 @@
 	<br />
 
 	<h1 class="text-3xl p-2">
-		Top {scoredSearchResults.length} products by best-value (quality/price)
+		Top {scoredSearchResults.length} products by <b>best-value for price</b> 
 	</h1>
 
-	<div class="flex flex-col justify-center items-center p-4 gap-4 max-w-5xl">
+	<div class="flex flex-col justify-center items-center p-4 gap-4 max-w-5xl scroll-smooth">
 		{#each scoredSearchResults as scoredSearchResult, i}
 			<div class="w-full" bind:this={containers[i].element}>
 				<ProductCard

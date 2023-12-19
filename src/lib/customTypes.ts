@@ -8,7 +8,7 @@ export interface ScoredSearchResult{
 
     searchResult:SearchResult
     quality:number
-    qualityPrice:number
+    value:number
 }
 
 

@@ -20,7 +20,7 @@ export const load = async ({params, locals}) => {
 
     const searchResults:SearchResult[] = JSON.parse(search.search_results as string)
     let scoredSearchResults = scoreSearchResults(config, searchResults)
-    scoredSearchResults = scoredSearchResults.sort((a,b)=>{return a.qualityPrice-b.qualityPrice}).slice(-config.top_products_count).reverse()
+    scoredSearchResults = scoredSearchResults.sort((a,b)=>{return a.value-b.value}).slice(-config.top_products_count).reverse()
 
     return {
         scoredSearchResults,

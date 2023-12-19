@@ -10,9 +10,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     if(config==null){
         config = await createConfig()
-    }else{
-        event.locals.config = config
     }
+    
+    event.locals.config = config
 
     return resolve(event, {
         filterSerializedResponseHeaders(name) {

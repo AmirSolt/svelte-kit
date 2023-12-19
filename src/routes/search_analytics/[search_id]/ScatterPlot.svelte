@@ -32,11 +32,6 @@
 	
 
 	$: areaPointsPath = areaPoints.map(p => `${xScale(p.x)},${yScale(p.y)}`).join(' ') 
-	$: console.log(areaPointsPath)
-
-
-
-
 
 	function updateScales() {
 
