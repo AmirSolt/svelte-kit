@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SvelteComponent, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import ProductCard from './ProductCard.svelte';
 	import ScatterPlot from './ScatterPlot.svelte';
 	import type { ScoredSearchResult, ChartPoint } from '$lib/customTypes';
