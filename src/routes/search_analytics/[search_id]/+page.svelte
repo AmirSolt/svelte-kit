@@ -169,9 +169,9 @@
 		</select>
 	</div>
 
-	<div class="flex flex-col justify-center items-center p-4 gap-4 max-w-5xl scroll-smooth">
+	<div class="flex flex-col gap-2 py-4">
 		{#each filteredScoredSearchResults as scoredSearchResult, i}
-			<div class="w-full" bind:this={containers[i]} data-id={scoredSearchResult.searchResult.asin}>
+			<div  bind:this={containers[i]} data-id={scoredSearchResult.searchResult.asin}>
 				<ProductCard
 					{scoredSearchResult}
 					isSelected={selectedAsin === scoredSearchResult.searchResult.asin}
@@ -180,5 +180,7 @@
 			</div>
 		{/each}
 	</div>
+
+
 	<div class="h-96" />
 </div>
