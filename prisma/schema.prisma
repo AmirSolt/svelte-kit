@@ -12,13 +12,13 @@ datasource db {
 model Config {
   id ConfigType @id
 
-  rating_weight  Float  @default(1)
+  rating_weight  Float  @default(2)
   total_ratings_weight  Float  @default(1)
-  price_weight  Float  @default(1)
+  price_weight  Float  @default(2)
 
-  sigmoid_rating_c1  Float @default(2)
+  sigmoid_rating_c1  Float @default(0.2)
   sigmoid_total_ratings_c1  Float @default(2)
-  sigmoid_price_c1  Float @default(2)
+  sigmoid_price_c1  Float @default(0.2)
 
   categorizer_system_message String @default("You are a virtual assistant on facebook messenger. Help the customer with prompts. Keep your responses very short, below 200 charachters.")
   categorizer_temperature    Float  @default(1)

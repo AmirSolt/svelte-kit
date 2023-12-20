@@ -15,6 +15,7 @@
 	let height = 0;
 	let width = 0;
     const circleRadius = 6
+    const rectSideLength = (circleRadius+1)*2
 
 	const padding = { top: 20, right: 20, bottom: 45, left: 50 };
 
@@ -90,7 +91,7 @@
             <circle class=" circle " cx="{xScale(point.x)}" cy="{yScale(point.y)}" r="{circleRadius}" />
 	{/each}
 	{#if selectedPoint}
-		<circle class=" selectedCircle " cx="{xScale(selectedPoint.x)}" cy="{yScale(selectedPoint.y)}" r="{circleRadius+1}" />
+		<rect class=" selectedCircle " x="{xScale(selectedPoint.x)-rectSideLength/2}" y="{yScale(selectedPoint.y)-rectSideLength/2}" width="{rectSideLength}" height="{rectSideLength}" />
 	{/if}
 
 
@@ -111,7 +112,7 @@
     .selectedCircle {
 		fill: #f70b32;
 		fill-opacity:1;
-		stroke: rgb(10, 60, 223);
+		stroke: rgb(0, 0, 0);
         z-index: 100;
 	}
 

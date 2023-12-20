@@ -18,7 +18,9 @@ export const load = async ({params, locals}) => {
         throw error(400, "Could not find the search")
     }
 
-    const searchResults:SearchResult[] = JSON.parse(search.search_results as string)
+    let searchResults:SearchResult[] = JSON.parse(search.search_results as string)
+
+    searchResults = searchResults.slice(0, config.top_products_count+10)
     let scoredSearchResults = scoreSearchResults(config, searchResults)
 
     return {
