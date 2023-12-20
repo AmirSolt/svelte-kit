@@ -169,7 +169,7 @@
 		</select>
 	</div>
 
-	<div class="flex flex-col gap-2 py-4">
+	<div class="flex flex-col gap-2 py-4 max-w-2xl">
 		{#each filteredScoredSearchResults as scoredSearchResult, i}
 			<div  bind:this={containers[i]} data-id={scoredSearchResult.searchResult.asin}>
 				<ProductCard
@@ -182,5 +182,5 @@
 	</div>
 
 
-	<div class="h-96" />
+	<div class="h-32" />
 </div>

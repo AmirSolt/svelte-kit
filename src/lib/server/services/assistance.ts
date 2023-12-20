@@ -20,9 +20,12 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
         return message.role==MessageRole.USER || 
             (message.role==MessageRole.ASSISTANT && message.content && message.content?.length>0)
     }
+
+
     const indexOfFirstUser = profile.messages.findIndex(message => cleanMessageCondition(message))
     const cleanedMessages = indexOfFirstUser !== -1 ? profile.messages.slice(indexOfFirstUser) : [];
-    const chatMessages = cleanedMessages.filter(m => m.role != MessageRole.NON_AI).map(m => {
+    // .filter(m => m.role != MessageRole.NON_AI)
+    const chatMessages = cleanedMessages.map(m => {
         if (m.role == MessageRole.TOOL) {
             const extrajson = m.extra_json as any
             return {
@@ -45,7 +48,6 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
             content: m.content ?? "",
         } as OpenAI.ChatCompletionMessageParam
     })
-
 
 
     chatMessages.unshift(systemMessage)

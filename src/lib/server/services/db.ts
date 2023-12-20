@@ -140,36 +140,55 @@ export async function createProfile(config:Config, fbMessengerId: string):Promis
 
 export async function getProfile(config:Config,fbMessengerId: string) {
 
-    let profile:MProfile | null | undefined
 
-    const res = await redis.get(fbMessengerId)
-    
-    if (res==null) {
-        const profileValue = await prisma.profile.findFirst({
-            where: {
-                fb_messenger_id: fbMessengerId
+    return await prisma.profile.findFirst({
+        where: {
+            fb_messenger_id: fbMessengerId
+        },
+        include: {
+            messages: {
+                take: -config.load_message_to_client_count,
+                orderBy: {
+                    created_at: 'asc',
+                },
             },
-            include: {
-                messages: {
-                    take: config.load_message_to_client_count,
-                    orderBy: {
-                        created_at: 'asc',
-                    },
-                },
-                _count: {
-                    select: { messages: true },
-                },
-            }
-        })
-        if(profileValue){
-            redis.set(fbMessengerId, JSON.stringify(profileValue), "EX", defaultRedisExpiration)
-            profile = profileValue
+            _count: {
+                select: { messages: true },
+            },
         }
-    } else {
-        profile = JSON.parse(res)
-    }
+    })
 
-    return profile
+
+    // let profile:MProfile | null | undefined
+
+    // const res = await redis.get(fbMessengerId)
+    
+    // if (res==null) {
+    //     const profileValue = await prisma.profile.findFirst({
+    //         where: {
+    //             fb_messenger_id: fbMessengerId
+    //         },
+    //         include: {
+    //             messages: {
+    //                 take: config.load_message_to_client_count,
+    //                 orderBy: {
+    //                     created_at: 'asc',
+    //                 },
+    //             },
+    //             _count: {
+    //                 select: { messages: true },
+    //             },
+    //         }
+    //     })
+    //     if(profileValue){
+    //         redis.set(fbMessengerId, JSON.stringify(profileValue), "EX", defaultRedisExpiration)
+    //         profile = profileValue
+    //     }
+    // } else {
+    //     profile = JSON.parse(res)
+    // }
+
+    // return profile
 }
 
 

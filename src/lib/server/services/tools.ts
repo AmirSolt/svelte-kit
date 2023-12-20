@@ -18,7 +18,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "search",
-            description: "The tool provides users with advanced statistical analytics for Amazon search.",
+            description: "The tool provides users with advanced statistical analytics for Amazon search. Only search if the user explicitly tells you to 'search ...'",
             parameters: {
                 type: "object",
                 properties: {
@@ -46,7 +46,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "report",
-            description: "Reports a problem directly to the developer.",
+            description: "Reports a problem directly to the developer. Only report if the user explicitly tells you to 'report ...'.",
             parameters: {
                 type: "object",
                 properties: {
