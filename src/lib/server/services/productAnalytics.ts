@@ -6,10 +6,11 @@ import type { SearchResult, ScoredSearchResult } from "../../customTypes";
 
 
 interface ChannelsScore {
-    quality: number
-    rating: number
-    ratingTotal: number
-    price: number
+    qualityScore: number
+    ratingScore: number
+    ratingTotalScore: number
+    priceScore: number
+    priceZScore: number
 }
 
 
@@ -18,6 +19,10 @@ export function scoreSearchResults(config: Config, searchResults: SearchResult[]
     const ratingWeight = config.rating_weight
     const ratingTotalWeight = config.total_ratings_weight
     const priceWeight = config.price_weight
+
+    const sigmoidRatingC1 = config.sigmoid_rating_c1
+    const sigmoidRatingTotalC1 = config.sigmoid_total_ratings_c1
+    const sigmoidPriceC1 = config.sigmoid_price_c1
 
 
     const cleanedResults = searchResults.filter(sr => {
@@ -30,31 +35,38 @@ export function scoreSearchResults(config: Config, searchResults: SearchResult[]
 
 
     const scores: ChannelsScore[] = cleanedResults.map(sr => {
-        const ratingScore = zScore(ratingSTD, ratingMean, sr.rating ?? -1) * ratingWeight
-        const ratingTotalScore = sigmoid(zScore(ratingTotalSTD, ratingTotalMean, sr.ratings_total ?? -1)) * ratingTotalWeight
-        const priceScore = zScore(priceSTD, priceMean, sr.price.value) * priceWeight
+        const ratingZScore = zScore(ratingSTD, ratingMean, sr.rating?? -1)
+        const totalRatingsZScore = zScore(ratingTotalSTD, ratingTotalMean, sr.ratings_total?? -1)
+        const priceZScore = zScore(priceSTD, priceMean, sr.price.value)
+
+        const ratingScore = sigmoid(ratingZScore, sigmoidRatingC1) * ratingWeight
+        const ratingTotalScore = sigmoid(totalRatingsZScore, sigmoidRatingTotalC1) * ratingTotalWeight
+        const priceScore = sigmoid(priceZScore, sigmoidPriceC1) * priceWeight
         
+
         return {
-            quality: ratingScore + ratingTotalScore + priceScore,
-            rating: ratingScore,
-            ratingTotal: ratingTotalScore,
-            price: priceScore,
+            qualityScore: ratingScore + ratingTotalScore + priceScore,
+            ratingScore: ratingScore,
+            ratingTotalScore: ratingTotalScore,
+            priceScore: priceScore,
+            priceZScore:priceZScore
         }
     })
 
-    const maxQualityScore = Math.max(...scores.map(s=>s.quality))
-    const minQualityScore = Math.min(...scores.map(s=>s.quality))
+    const maxQualityScore = Math.max(...scores.map(s=>s.qualityScore))
+    const minQualityScore = Math.min(...scores.map(s=>s.qualityScore))
 
-    const maxPriceScore = Math.max(...scores.map(s=>s.price))
-    const minPriceScore = Math.min(...scores.map(s=>s.price))
+    const maxPriceScore = Math.max(...scores.map(s=>s.priceZScore))
+    const minPriceScore = Math.min(...scores.map(s=>s.priceZScore))
 
     let scoredSearchResults = cleanedResults.map((sr, i) => {
-        const qualityScoreNormalized = (scores[i].quality - minQualityScore) / (maxQualityScore - minQualityScore)
-        const priceScoreNormalized = (scores[i].price - minPriceScore) / (maxPriceScore - minPriceScore)
+        const qualityScoreNormalized = (scores[i].qualityScore - minQualityScore) / (maxQualityScore - minQualityScore)
+        const priceScoreNormalized = (scores[i].priceZScore - minPriceScore) / (maxPriceScore - minPriceScore)
 
         return {
             searchResult: sr,
             quality: qualityScoreNormalized,
+            priceScoreNormalized:priceScoreNormalized,
             value: qualityScoreNormalized / (priceScoreNormalized + 1)
         }
     })
@@ -84,9 +96,7 @@ function zScore(std: number, mean: number, elementValue: number): number {
     return (elementValue - mean) / std;
 }
 
-function sigmoid(z: number): number {
-    const c0 = 0
-    const c1 = 4
+function sigmoid(z: number, c1:number, c0:number=0): number {
     return 1 / (1 + Math.exp(-(c0+(c1*z))));
 }
 

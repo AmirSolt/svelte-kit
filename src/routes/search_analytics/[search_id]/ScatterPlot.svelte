@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { scaleLinear, type ScaleLinear } from 'd3-scale';
-	import { extent } from 'd3-array';
+	import type { ChartPoint } from '$lib/customTypes';
 
-    interface Point{ id:string, x: number; y: number}
-	export let points: Point[];
+    
+	export let points: ChartPoint[];
 	export let labels: { xLabel: string; yLabel: string };
 	export let selectedId:string|null|undefined
-	export let areaPoints:Point[]=[]
+	export let areaPoints:ChartPoint[]=[]
 
-	let selectedPoint:Point|null|undefined
+	let selectedPoint:ChartPoint|null|undefined
 	let svg: Element;
 	
 	let height = 0;
@@ -35,16 +35,11 @@
 
 	function updateScales() {
 
-		let [minX, maxX] = extent(points, (d) => d.x);
-		let [minY, maxY] = extent(points, (d) => d.y);
-
-		if(maxX==null) maxX = 1.2
-		if(maxY==null) maxY = 500
 		xScale = scaleLinear()
-			.domain([0, maxX]).nice()
+			.domain([0, 1]).nice()
 			.range([padding.left, width - padding.right]);
 		yScale = scaleLinear()
-			.domain([0, maxY]).nice()
+			.domain([0, 1]).nice()
 			.range([height - padding.bottom, padding.top]);
 	}
 
