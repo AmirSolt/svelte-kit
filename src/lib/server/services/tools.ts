@@ -17,28 +17,28 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
     {
         type: "function",
         function: {
-            name: "country",
-            description: "Save user's country for better search results. Default country is US.",
-            parameters: {
-                type: "object",
-                properties: {
-                    countryCode: { type: "string", description: "Two letter country code in ISO 3166-1 alpha-2. Convert to two letter code if needed." },
-                },
-                required: ["countryCode"]
-            }
-        }
-    },
-    {
-        type: "function",
-        function: {
             name: "search",
-            description: "Searches amazon products and returns product quality/price analytics.",
+            description: "The tool provides users with advanced statistical analytics for Amazon search.",
             parameters: {
                 type: "object",
                 properties: {
                     searchTerm: { type: "string", description: "The search term." },
                 },
                 required: ["searchTerm"]
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "country",
+            description: "update user's country for better search results. Default country is US.",
+            parameters: {
+                type: "object",
+                properties: {
+                    countryCode: { type: "string", description: "Two letter country code in ISO 3166-1 alpha-2. Convert to two letter code if needed." },
+                },
+                required: ["countryCode"]
             }
         }
     },
