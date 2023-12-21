@@ -1,6 +1,6 @@
 import type { OpenAI } from "openai";
 import { submitMessage, submitTicket } from "./communications";
-import type { MProfile, SearchResponse } from "../../customTypes";
+import type { MProfile } from "../../customTypes";
 import { MessageDir, MessageRole, type Config } from "@prisma/client";
 import { createSearch, updateProfileCountry } from "./db";
 import { amazon } from "../clients/amazon";
@@ -18,7 +18,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "search_discounts",
-            description: "The tool searches amazon for discounts and coupons. Only search if the user explicitly tells you to 'search ...'",
+            description: "Search amazon for discounts and coupons. Only search if the user explicitly tells you to 'search ...'",
             parameters: {
                 type: "object",
                 properties: {
@@ -32,7 +32,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "country",
-            description: "update user's country for better search results. Default country is US.",
+            description: "update user's country for tailored search results.",
             parameters: {
                 type: "object",
                 properties: {
@@ -80,8 +80,11 @@ export const toolsFunc: Record<string, any> = {
   
         
         const domain = amazon.countryToDomain(profile.country_code)
-        const searchResponse:SearchResponse|null = await amazon.search(domain, searchTerm, true)
-        if(searchResponse==null){
+        const searchMetadata:{
+            amazonSearchUrl:string
+            products:Product[]
+        }|null = await amazon.search(domain, searchTerm, true)
+        if(searchMetadata==null){
             await submitMessage(
                 config,
                 profile,
@@ -97,9 +100,9 @@ export const toolsFunc: Record<string, any> = {
             config,
             profile,
             searchTerm,
-            searchResponse.search_results.map(sr=>sr.asin),
-            searchResponse.request_metadata.amazon_url,
-            JSON.stringify(searchResponse.search_results)
+            searchMetadata.products.map(p=>p.asin),
+            searchMetadata.amazonSearchUrl,
+            JSON.stringify(searchMetadata.products)
         )
 
         await submitMessage(

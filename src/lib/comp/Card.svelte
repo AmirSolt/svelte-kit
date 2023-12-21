@@ -60,12 +60,12 @@
                 <!-- Prices -->
                 <div id="price" class="row">
                     <span class="text-2xl">
-                        {product.symbol}{product.priceCurrValue.toFixed(2)}
+                        {product.symbol}{product.priceCurrValue}
                     </span>
 
                     {#if product.totalSaleValue > 0}
                         <s class="text-xs">
-                            {product.symbol}{product.priceOrgValue.toFixed(2)}
+                            {product.symbol}{product.priceOrgValue}
                         </s>
                     {/if}
                 </div>

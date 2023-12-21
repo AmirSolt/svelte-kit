@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import ProductCard from './ProductCard.svelte';
+	import ProductCard from './ProductCard.svelte'
 	import ScatterPlot from './ScatterPlot.svelte';
-	import type { ScoredSearchResult, ChartPoint } from '$lib/customTypes';
 	export let data;
-	let { scoredSearchResults, search_url, topProductsCount } = data;
+	let { products, search_url, topProductsCount } = data;
 
-	let filteredScoredSearchResults: ScoredSearchResult[] = [];
+	let filteredProducts: Product[] = [];
 	let selectedAsin:string|undefined
 	let containers:HTMLElement[] = [];
 	let dataset: ChartPoint[] = [];
@@ -14,53 +13,53 @@
 	let sortByKey = 'Discount';
 	let sortBy: { [key: string]: any } = {
 		"Discount": () => {
-			filteredScoredSearchResults = scoredSearchResults
+			filteredProducts = products
 				.sort((a, b) => {
-					return a.discount_raw - b.discount_raw;
+					return a.totalSaleValue - b.totalSaleValue;
 				})
 				.slice(-topProductsCount)
 				.reverse();
-			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
+			selectedAsin = filteredProducts[0].asin;
 			updateChartData();
 		},
 		"Value": () => {
-			filteredScoredSearchResults = scoredSearchResults
+			filteredProducts = products
 				.sort((a, b) => {
-					return a.value - b.value;
+					return a.productStats!.valueScore - b.productStats!.valueScore;
 				})
 				.slice(-topProductsCount)
 				.reverse();
-			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
+			selectedAsin = filteredProducts[0].asin;
 			updateChartData();
 		},
 		"Quality": () => {
-			filteredScoredSearchResults = scoredSearchResults
+			filteredProducts = products
 				.sort((a, b) => {
-					return a.quality - b.quality;
+					return a.productStats!.qualityScore - b.productStats!.qualityScore;
 				})
 				.slice(-topProductsCount)
 				.reverse();
-			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
+			selectedAsin = filteredProducts[0].asin;
 			updateChartData();
 		},
 		"Lowest Price": () => {
-			filteredScoredSearchResults = scoredSearchResults
+			filteredProducts = products
 				.sort((a, b) => {
-					return b.priceCurrNormalized - a.priceCurrNormalized;
+					return b.productStats!.priceCurrNormalized - a.productStats!.priceCurrNormalized;
 				})
 				.slice(-topProductsCount)
 				.reverse();
-			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
+			selectedAsin = filteredProducts[0].asin;
 			updateChartData();
 		},
 		"Highest Price": () => {
-			filteredScoredSearchResults = scoredSearchResults
+			filteredProducts = products
 				.sort((a, b) => {
-					return a.priceCurrNormalized - b.priceCurrNormalized;
+					return a.productStats!.priceCurrNormalized - b.productStats!.priceCurrNormalized;
 				})
 				.slice(-topProductsCount)
 				.reverse();
-			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
+			selectedAsin = filteredProducts[0].asin;
 			updateChartData();
 		}
 	};
@@ -90,11 +89,11 @@
 	];
 
 	function updateChartData() {
-		dataset = filteredScoredSearchResults.map((r) => {
+		dataset = filteredProducts.map((r) => {
 			return {
-				id: r.searchResult.asin,
-				x: r.quality,
-				y: r.priceCurrNormalized
+				id: r.asin,
+				x: r.productStats!.qualityScore,
+				y: r.productStats!.priceCurrNormalized
 			};
 		});
 	}
@@ -169,7 +168,7 @@
 
 	<div class="flex flex-col justify-center items-center">
 		<h1 class="text-3xl p-2">
-			Top {filteredScoredSearchResults.length} products by
+			Top {filteredProducts.length} products by
 		</h1>
 		<select class="select w-40 text-xl" bind:value={sortByKey} on:change={sortBy[sortByKey]}>
 			{#each Object.keys(sortBy) as key}
@@ -181,11 +180,11 @@
 	</div>
 
 	<div class="flex flex-col gap-2 py-4 max-w-2xl">
-		{#each filteredScoredSearchResults as scoredSearchResult, i}
-			<div  bind:this={containers[i]} data-id={scoredSearchResult.searchResult.asin}>
+		{#each filteredProducts as product, i}
+			<div  bind:this={containers[i]} data-id={product.asin}>
 				<ProductCard
-					{scoredSearchResult}
-					isSelected={selectedAsin === scoredSearchResult.searchResult.asin}
+					product={product}
+					isSelected={selectedAsin === product.asin}
 					index={i}
 				/>
 			</div>

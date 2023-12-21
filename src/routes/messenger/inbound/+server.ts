@@ -14,7 +14,7 @@ const disclaimerMessage = `🔍 Please note: This chatbot uses AI to respond to 
 const countryMessage = "🌍 Before we start, Which country are you from?"
 const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${countryMessage}`
 
-export const POST: RequestHandler = async (event) => {
+export const POST = async (event) => {
     const twimlResponse = new TwilioSDK.twiml.MessagingResponse();
 
     try{
@@ -44,8 +44,8 @@ export const POST: RequestHandler = async (event) => {
             });
         }
 
-        if(!await submitMessage(config, profile, MessageRole.USER, MessageDir.INBOUND, Body)) return
-
+        await submitMessage(config, profile, MessageRole.USER, MessageDir.INBOUND, Body)
+    
         console.log("--- user message saved")
 
         if(profile._count.messages>0 && profile._count.messages % config.disclaimer_repeat_message_count == 0){
