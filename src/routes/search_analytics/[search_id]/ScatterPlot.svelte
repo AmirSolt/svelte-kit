@@ -50,8 +50,8 @@
 	}
 </script>
 
-<svelte:window bind:outerWidth="{width}" bind:outerHeight="{height}" on:resize="{resize}" />
-<svg bind:this="{svg}">
+<svelte:window on:resize="{resize}" />
+<svg class="w-full h-full" bind:this="{svg}">
 	<!-- y axis -->
 	<g class="axis y-axis">
 		{#each yScale.ticks(6) as tick}
@@ -97,11 +97,13 @@
 
 </svg>
 
+
+<p>{width}</p>
+<p>{height}</p>
+
 <style>
-	svg {
-		width: 100%;
-		height: 100%;
-	}
+
+
 
 	.circle {
 		fill: rgba(0,0,0,0);
