@@ -17,7 +17,7 @@
     const circleRadius = 6
     const rectSideLength = (circleRadius+1)*2
 
-	const padding = { top: 20, right: 20, bottom: 45, left: 50 };
+	const padding = { top: 10, right: 10, bottom: 45, left: 50 };
 
 	$: if(selectedId){
 		selectedPoint = points.find(p=>p.id==selectedId)
@@ -98,8 +98,6 @@
 </svg>
 
 
-<p>{width}</p>
-<p>{height}</p>
 
 <style>
 

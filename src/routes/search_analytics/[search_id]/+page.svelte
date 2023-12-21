@@ -11,12 +11,12 @@
 	let containers:HTMLElement[] = [];
 	let dataset: ChartPoint[] = [];
 
-	let sortByKey = 'Quality';
+	let sortByKey = 'Discount';
 	let sortBy: { [key: string]: any } = {
-		"Quality": () => {
+		"Discount": () => {
 			filteredScoredSearchResults = scoredSearchResults
 				.sort((a, b) => {
-					return a.quality - b.quality;
+					return a.discount_raw - b.discount_raw;
 				})
 				.slice(-topProductsCount)
 				.reverse();
@@ -33,10 +33,20 @@
 			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
 			updateChartData();
 		},
+		"Quality": () => {
+			filteredScoredSearchResults = scoredSearchResults
+				.sort((a, b) => {
+					return a.quality - b.quality;
+				})
+				.slice(-topProductsCount)
+				.reverse();
+			selectedAsin = filteredScoredSearchResults[0].searchResult.asin;
+			updateChartData();
+		},
 		"Lowest Price": () => {
 			filteredScoredSearchResults = scoredSearchResults
 				.sort((a, b) => {
-					return b.priceScoreNormalized - a.priceScoreNormalized;
+					return b.priceCurrNormalized - a.priceCurrNormalized;
 				})
 				.slice(-topProductsCount)
 				.reverse();
@@ -46,7 +56,7 @@
 		"Highest Price": () => {
 			filteredScoredSearchResults = scoredSearchResults
 				.sort((a, b) => {
-					return a.priceScoreNormalized - b.priceScoreNormalized;
+					return a.priceCurrNormalized - b.priceCurrNormalized;
 				})
 				.slice(-topProductsCount)
 				.reverse();
@@ -84,7 +94,7 @@
 			return {
 				id: r.searchResult.asin,
 				x: r.quality,
-				y: r.priceScoreNormalized
+				y: r.priceCurrNormalized
 			};
 		});
 	}
@@ -136,10 +146,11 @@
 	<meta property="og:image" content="%sveltekit.assets%/chart.png" />
 </svelte:head>
 
-<div class="flex flex-col justify-center items-center w-full">
-	<div class="p-2 w-full sticky top-0 z-10 card h-64 drop-shadow-lg">
-		<ScatterPlot points={dataset} labels={axLabels} selectedId={selectedAsin} {areaPoints} />
-	</div>
+<div class="w-full sticky top-0 z-10 card h-48 drop-shadow-lg">
+	<ScatterPlot points={dataset} labels={axLabels} selectedId={selectedAsin} {areaPoints} />
+</div>
+
+<div class="flex flex-col justify-center items-center px-2">
 
 	<br />
 

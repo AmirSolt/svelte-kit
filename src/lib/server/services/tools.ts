@@ -17,8 +17,8 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
     {
         type: "function",
         function: {
-            name: "search",
-            description: "The tool provides users with advanced statistical analytics for Amazon search. Only search if the user explicitly tells you to 'search ...'",
+            name: "search_discounts",
+            description: "The tool searches amazon for discounts and coupons. Only search if the user explicitly tells you to 'search ...'",
             parameters: {
                 type: "object",
                 properties: {
@@ -46,7 +46,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "report",
-            description: "Reports a problem directly to the developer. Only report if the user explicitly tells you to 'report ...'.",
+            description: "Reports a problem directly to the developer. Only report if user needs a human to help.",
             parameters: {
                 type: "object",
                 properties: {
@@ -60,28 +60,12 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
 
 export const toolsFunc: Record<string, any> = {
 
-    country: async (config:Config, profile:MProfile, inputArgs:{countryCode:string}) => {
-        const {countryCode} = inputArgs
-
-        console.log("Country tool:",countryCode)
-        profile = await updateProfileCountry(
-            profile,
-            countryCode
-        )
-        submitMessage(
-            config,
-            profile,
-            MessageRole.ASSISTANT,
-            MessageDir.OUTBOUND,
-            `Country set to ${countryCode}`,
-        );
-    },
 
 
 
 
     // ================================================
-    search: async (config:Config, profile:MProfile, inputArgs:{searchTerm:string}) => {
+    search_discounts: async (config:Config, profile:MProfile, inputArgs:{searchTerm:string}) => {
 
         const {searchTerm} = inputArgs
 
@@ -96,7 +80,7 @@ export const toolsFunc: Record<string, any> = {
   
         
         const domain = amazon.countryToDomain(profile.country_code)
-        const searchResponse:SearchResponse|null = await amazon.search(domain, searchTerm)
+        const searchResponse:SearchResponse|null = await amazon.search(domain, searchTerm, true)
         if(searchResponse==null){
             await submitMessage(
                 config,
@@ -123,12 +107,27 @@ export const toolsFunc: Record<string, any> = {
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            `Search Analytics:\n ${process.env.DOMAIN}/search_analytics/${search.id}`,
+            `Search Results:\n ${process.env.DOMAIN}/search_analytics/${search.id}`,
         );
     },
 
+    // ================================================
+    country: async (config:Config, profile:MProfile, inputArgs:{countryCode:string}) => {
+        const {countryCode} = inputArgs
 
-
+        console.log("Country tool:",countryCode)
+        profile = await updateProfileCountry(
+            profile,
+            countryCode
+        )
+        submitMessage(
+            config,
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            `Country updated to ${countryCode}.\n\n❓To search our discounts & coupons, type "Search [keyword]". for example: "Search shoes" or "Search shoes for kids"`,
+        );
+    },
 
     // ================================================
 

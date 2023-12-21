@@ -23,27 +23,9 @@ class AmazonApi {
         this.affiliate_id = affiliate_id
     }
 
-    async search(amazon_domain: string, search_term: string): Promise<SearchResponse|null> {
+    async search(amazon_domain: string, search_term: string, discounts:boolean): Promise<SearchResponse|null> {
 
         const callType = "search"
-
-        // const response = await fetch(this.api_url, {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify({
-        //         type: callType,
-        //         api_key: this.api_key,
-        //         associate_id: this.affiliate_id,
-        //         amazon_domain: amazon_domain,
-        //         search_term: search_term,
-        //         exclude_sponsored: this.exclude_sponsored,
-        //         include_html: this.include_html,
-        //         output: this.output
-        //     }),
-        // });
-
 
         const queryParams = {
             type: callType,
@@ -53,7 +35,8 @@ class AmazonApi {
             search_term: search_term,
             exclude_sponsored: this.exclude_sponsored,
             include_html: this.include_html,
-            output: this.output
+            output: this.output,
+            refinements: discounts?"p_n_deal_type/23566065011":"",
         };
         const queryString = new URLSearchParams(queryParams).toString();
         const urlWithQuery = `${this.api_url}?${queryString}`;

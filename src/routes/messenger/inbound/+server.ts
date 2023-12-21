@@ -9,11 +9,10 @@ import { callCompletion } from '$lib/server/services/assistance';
 
 
 
-const welcomeMessage = `⭐ Welcome to Product Analyzer! `
-const disclaimerMessage = `🤖 Quick disclaimer: This is a chatbot, not a human.`
-const tutorialMessage = `🆘 Ask your virtual assistant, "What can you do?" for more information.`
-const countryMessage = "🗺️ Which country are you from? (Default:US)"
-const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${tutorialMessage}\n\n${countryMessage}`
+const welcomeMessage = `⭐ Welcome to Clearance Chatbot! Where you can search Amazon discounts & coupons.`
+const disclaimerMessage = `🤖 Quick disclaimer: This chatbot uses AI to respond.`
+const countryMessage = "🗺️ Before we start Which country are you from? (Default:US)"
+const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${countryMessage}`
 
 export const POST: RequestHandler = async (event) => {
     const twimlResponse = new TwilioSDK.twiml.MessagingResponse();

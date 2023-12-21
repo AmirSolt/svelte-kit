@@ -9,8 +9,9 @@ interface ChannelsScore {
     qualityScore: number
     ratingScore: number
     ratingTotalScore: number
-    priceScore: number
-    priceZScore: number
+    priceOrgScore: number
+    priceCurrZScore:number
+    priceOrgZScore:number
 }
 
 
@@ -26,48 +27,59 @@ export function scoreSearchResults(config: Config, searchResults: SearchResult[]
 
 
     const cleanedResults = searchResults.filter(sr => {
-        return sr.rating != null && sr.ratings_total != null && sr.price != null && sr.price.value != null;
+        return sr.rating != null && sr.ratings_total != null && getCurrentPrice(sr)!=null;
     });
 
     const { std: ratingSTD, mean: ratingMean } = getStdMean(cleanedResults.map(sr => sr.rating!));
     const { std: ratingTotalSTD, mean: ratingTotalMean } = getStdMean(cleanedResults.map(sr => sr.ratings_total!));
-    const { std: priceSTD, mean: priceMean } = getStdMean(cleanedResults.map(sr => sr.price!.value));
+    const { std: priceCurrSTD, mean: priceCurrMean } = getStdMean(cleanedResults.map(sr => getCurrentPrice(sr)!));
+    const { std: priceOrgSTD, mean: priceOrgMean } = getStdMean(cleanedResults.map(sr => getOriginalPrice(sr)!));
 
 
     const scores: ChannelsScore[] = cleanedResults.map(sr => {
-        const ratingZScore = zScore(ratingSTD, ratingMean, sr.rating?? -1)
-        const totalRatingsZScore = zScore(ratingTotalSTD, ratingTotalMean, sr.ratings_total?? -1)
-        const priceZScore = zScore(priceSTD, priceMean, sr.price.value)
+        const ratingZScore = zScore(ratingSTD, ratingMean, sr.rating!)
+        const totalRatingsZScore = zScore(ratingTotalSTD, ratingTotalMean, sr.ratings_total!)
+        const priceCurrZScore = zScore(priceCurrSTD, priceCurrMean, getCurrentPrice(sr)!)
+        const priceOrgZScore = zScore(priceOrgSTD, priceOrgMean, getOriginalPrice(sr)!)
 
         const ratingScore = sigmoid(ratingZScore, sigmoidRatingC1) * ratingWeight
         const ratingTotalScore = sigmoid(totalRatingsZScore, sigmoidRatingTotalC1) * ratingTotalWeight
-        const priceScore = sigmoid(priceZScore, sigmoidPriceC1) * priceWeight
+        const priceOrgScore = sigmoid(priceOrgZScore, sigmoidPriceC1) * priceWeight
         
 
+ 
         return {
-            qualityScore: ratingScore + ratingTotalScore + priceScore,
+            qualityScore: ratingScore + ratingTotalScore + priceOrgScore,
             ratingScore: ratingScore,
             ratingTotalScore: ratingTotalScore,
-            priceScore: priceScore,
-            priceZScore:priceZScore
+            priceOrgScore: priceOrgScore,
+            priceCurrZScore:priceCurrZScore,
+            priceOrgZScore:priceOrgZScore,
+            
         }
     })
 
     const maxQualityScore = Math.max(...scores.map(s=>s.qualityScore))
     const minQualityScore = Math.min(...scores.map(s=>s.qualityScore))
 
-    const maxPriceScore = Math.max(...scores.map(s=>s.priceZScore))
-    const minPriceScore = Math.min(...scores.map(s=>s.priceZScore))
+    const maxPriceZScore = Math.max(...scores.map(s=>s.priceCurrZScore))
+    const minPriceZScore = Math.min(...scores.map(s=>s.priceCurrZScore))
 
     let scoredSearchResults = cleanedResults.map((sr, i) => {
         const qualityScoreNormalized = (scores[i].qualityScore - minQualityScore) / (maxQualityScore - minQualityScore)
-        const priceScoreNormalized = (scores[i].priceZScore - minPriceScore) / (maxPriceScore - minPriceScore)
+        const priceCurrNormalized = (scores[i].priceCurrZScore - minPriceZScore) / (maxPriceZScore - minPriceZScore)
+        let discount_raw = 0
+        if(sr.prices && sr.prices.length>1 && sr.prices[1].value > sr.prices[0].value){
+            discount_raw = sr.prices[1].value - sr.prices[0].value
+        }
+
 
         return {
             searchResult: sr,
             quality: qualityScoreNormalized,
-            priceScoreNormalized:priceScoreNormalized,
-            value: qualityScoreNormalized / (priceScoreNormalized + 1)
+            priceCurrNormalized:priceCurrNormalized,
+            value: qualityScoreNormalized / (priceCurrNormalized + 1),
+            discount_raw
         }
     })
 
@@ -81,7 +93,19 @@ export function scoreSearchResults(config: Config, searchResults: SearchResult[]
 
 }
 
+function getCurrentPrice(sr:SearchResult):number|null{
+    if(sr.price != null && sr.price.value != null){
+        return  sr.price.value
+    }
+    return null
+}
 
+function getOriginalPrice(sr:SearchResult):number|null{
+    if(sr.prices && sr.prices.length>1 && sr.prices[1].value > sr.prices[0].value){
+        return sr.prices[1].value
+    }
+    return getCurrentPrice(sr)
+}
 
 
 function getStdMean(lst: number[]) {
