@@ -9,9 +9,9 @@ import { callCompletion } from '$lib/server/services/assistance';
 
 
 
-const welcomeMessage = `⭐ Welcome to Clearance Chatbot! Where you can search Amazon discounts & coupons.`
-const disclaimerMessage = `🤖 Quick disclaimer: This chatbot uses AI to respond.`
-const countryMessage = "🗺️ Before we start Which country are you from? (Default:US)"
+const welcomeMessage = `🎉 Welcome to Clearance Chatbot! Where you can search through thousands of Amazon discounts & coupons.`
+const disclaimerMessage = `🔍 Please note: This chatbot uses AI to respond to your queries.`
+const countryMessage = "🌍 Before we start, Which country are you from?"
 const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${countryMessage}`
 
 export const POST: RequestHandler = async (event) => {

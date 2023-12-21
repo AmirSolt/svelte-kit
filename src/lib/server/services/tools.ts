@@ -125,7 +125,7 @@ export const toolsFunc: Record<string, any> = {
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            `Country updated to ${countryCode}.\n\n❓To search our discounts & coupons, type "Search [keyword]". for example: "Search shoes" or "Search shoes for kids"`,
+            `Country updated to ${countryCode}.\n\n❓To search our discounts & coupons, type "Search [keyword]". for example:\n "Search shoes" or "Search shoes for kids"`,
         );
     },
 
