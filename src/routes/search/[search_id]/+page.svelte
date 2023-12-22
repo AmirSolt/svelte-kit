@@ -182,6 +182,11 @@
 	<div class="flex flex-col gap-2 py-4 max-w-2xl">
 		{#each filteredProducts as product, i}
 			<div  bind:this={containers[i]} data-id={product.asin}>
+
+				<p>ratingScore: {product.productStats?.ratingScore}</p>
+				<p>ratingsTotalScore: {product.productStats?.ratingsTotalScore}</p>
+				<p>priceOrgScore: {product.productStats?.priceOrgScore}</p>
+
 				<ProductCard
 					product={product}
 					isSelected={selectedAsin === product.asin}

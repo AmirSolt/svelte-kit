@@ -27,6 +27,10 @@ interface ProductStats{
     qualityScore:number
     valueScore:number
     priceCurrNormalized:number
+    
+    ratingScore:number
+    ratingsTotalScore:number
+    priceOrgScore:number
 }
 
 interface ChartPoint{ id:string, x: number; y: number}
