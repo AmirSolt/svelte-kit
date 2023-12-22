@@ -110,7 +110,7 @@ export const toolsFunc: Record<string, any> = {
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            `Search Results:\n ${process.env.DOMAIN}/search_analytics/${search.id}`,
+            `Search Results:\n ${process.env.DOMAIN}/search/${search.id}`,
         );
     },
 
@@ -128,7 +128,7 @@ export const toolsFunc: Record<string, any> = {
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            `Country updated to ${countryCode}.\n\n❓To search our discounts & coupons, type "Search [keyword]". for example:\n "Search shoes" or "Search shoes for kids"`,
+            `Country updated to ${countryCode}.\n\n❓To search follow these examples:\n "Search white running shoes" or "Search tshirts for kids"`,
         );
     },
 

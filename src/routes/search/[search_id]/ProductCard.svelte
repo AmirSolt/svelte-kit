@@ -81,7 +81,7 @@
                     {/if}
                     {#if product.couponValue > 0}
                         <span class="badge variant-filled-secondary text-md">
-                            +{product.symbol}{(product.couponValue).toFixed(0)}
+                            {product.symbol}{(product.couponValue).toFixed(0)}
     
                                 Coupon
                         </span>
