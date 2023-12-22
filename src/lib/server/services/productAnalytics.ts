@@ -67,9 +67,9 @@ export function updateProductStats(config: Config, products: Product[]) {
             qualityScore: qualityScoreNormalized,
             valueScore: qualityScoreNormalized / (priceCurrNormalized + 1),
             priceCurrNormalized: priceCurrNormalized,
-            ratingScore,
-            ratingsTotalScore,
-            priceOrgScore,
+            ratingScore:scores[i].ratingScore,
+            ratingsTotalScore:scores[i].ratingsTotalScore,
+            priceOrgScore:scores[i].priceOrgScore,
         }
     })
 }
