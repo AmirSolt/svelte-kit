@@ -170,6 +170,7 @@ function extractNumberFromString(text: string): number | null {
 
 
 const countryDomainList: { [key: string]: string } = {
+    US: 'amazon.com',
     AD: 'amazon.es', // Andorra -> Spain
     AE: 'amazon.ae', // United Arab Emirates (the)
     AT: 'amazon.de', // Austria -> Germany
