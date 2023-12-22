@@ -28,7 +28,7 @@ export async function submitMessage(
             extra_json,
             image_urls
         )
-        await sendMessage(profile.fb_messenger_id, newContent)
+        await sendSMS(profile.twilio_id, newContent)
         await createMessage(
             config,
             profile,
@@ -42,7 +42,7 @@ export async function submitMessage(
 
 
     if (messageDir === MessageDir.OUTBOUND && content && role !== MessageRole.TOOL) {
-        await sendMessage(profile.fb_messenger_id, content.substring(0, config.message_char_limit), image_urls)
+        await sendSMS(profile.twilio_id, content.substring(0, config.message_char_limit), image_urls)
     }
 
     await createMessage(
@@ -65,8 +65,8 @@ export async function submitTicket(
     profile: MProfile,
     content: string): Promise<Ticket> {
 
-    const pageLink = `https://www.facebook.com/profile.php?id=${profile.fb_messenger_id}`
-    const newContent = "--- Ticket: \n" + content + `\n page link:${pageLink}`
+    const twilioId = `${profile.twilio_id}`
+    const newContent = "--- Ticket: \n" + content + `\n twilioId: ${twilioId}`
 
     await sendSMS(ADMIN_NUMBER, newContent)
 
@@ -79,9 +79,8 @@ export async function submitTicket(
 
 
 
+
 async function sendMessage(sendTo: string, text: string, image_urls: string[] = []): Promise<void> {
-
-
     try {
         const message = await client.messages.create({
             from: `messenger:${twilioPageId}`,
@@ -97,12 +96,13 @@ async function sendMessage(sendTo: string, text: string, image_urls: string[] = 
 
 
 
-async function sendSMS(sendTo: string, text: string): Promise<void> {
+async function sendSMS(sendTo: string, text: string, image_urls: string[] = []): Promise<void> {
     try {
         const message = await client.messages.create({
             from: TWILIO_PHONE_NUMBER,
             body: text,
             to: sendTo,
+            mediaUrl: image_urls,
         });
         console.log("SMS sent with SID:", message.sid);
     } catch (error) {

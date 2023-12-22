@@ -10,9 +10,9 @@ import { callCompletion } from '$lib/server/services/assistance';
 
 
 const welcomeMessage = `🎉 Welcome to Clearance Chatbot! Where you can search through thousands of Amazon discounts & coupons.`
-const disclaimerMessage = `🔍 Please note: This chatbot uses AI to respond to your queries.`
-const countryMessage = "🌍 Before we start, Which country are you from?"
-const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${countryMessage}`
+const disclaimerMessage = `📝 Please note: This chatbot uses AI to respond to your queries.`
+const tutorialMessage = `🔍 To search follow the example: "Search running shoes" `
+const introMessage = `${welcomeMessage}\n\n${disclaimerMessage}\n\n${tutorialMessage}`
 
 export const POST = async (event) => {
     const twimlResponse = new TwilioSDK.twiml.MessagingResponse();
@@ -34,7 +34,6 @@ export const POST = async (event) => {
             profile = await createProfile(config, From)
             await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.INBOUND, Body)
             await submitMessage(config, profile, MessageRole.NON_AI, MessageDir.OUTBOUND, introMessage)
-            await createMessage(config, profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, countryMessage)
         
             
             return new Response(twimlResponse.toString(), {

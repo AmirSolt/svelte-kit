@@ -2,7 +2,7 @@ import { prisma } from "../clients/prisma";
 import { ConfigType, type Message, MessageDir, MessageRole, type Config, type Profile, type Search } from "@prisma/client";
 import { redis } from "../clients/redis";
 import type { MProfile } from "../../customTypes";
-
+import {phone} from 'phone';
 // expire redis records after x
 const defaultRedisExpiration = 60*10
 
@@ -17,7 +17,7 @@ export async function updateProfileCountry(profile:MProfile, countryCode:string)
         }
     })
     profile.country_code = countryCode
-    redis.set(profile.fb_messenger_id, JSON.stringify(profile), "EX", defaultRedisExpiration)
+    redis.set(profile.twilio_id, JSON.stringify(profile), "EX", defaultRedisExpiration)
     return profile
 }
 
@@ -114,16 +114,24 @@ export async function createMessage(
     profile.messages.push(message)
     profile._count.messages++
 
-    redis.set(profile.fb_messenger_id, JSON.stringify(profile), "EX", defaultRedisExpiration)
+    redis.set(profile.twilio_id, JSON.stringify(profile), "EX", defaultRedisExpiration)
 
     return profile
 }
 
 
-export async function createProfile(config:Config, fbMessengerId: string):Promise<MProfile>{
+export async function createProfile(config:Config, twilioId: string):Promise<MProfile>{
+
+    // grab country
+    let countryCode = "US"
+    const lookupResult = phone(twilioId);
+    if(lookupResult.isValid){
+        countryCode = lookupResult.countryIso2
+    }
     const profile = await prisma.profile.create({
         data:{
-            fb_messenger_id:fbMessengerId
+            twilio_id:twilioId,
+            country_code:countryCode
         }
     })
     const mPorfile = {
@@ -132,24 +140,24 @@ export async function createProfile(config:Config, fbMessengerId: string):Promis
         _count:{messages:0}
     } as MProfile
 
-    redis.set(fbMessengerId, JSON.stringify(mPorfile), "EX", defaultRedisExpiration)
+    redis.set(twilioId, JSON.stringify(mPorfile), "EX", defaultRedisExpiration)
 
     return mPorfile
 }
 
 
-export async function getProfile(config:Config,fbMessengerId: string) {
+export async function getProfile(config:Config,twilioId: string) {
 
 
 
     let profile:MProfile | null | undefined
 
-    const res = await redis.get(fbMessengerId)
+    const res = await redis.get(twilioId)
     
     if (res==null) {
         const profileValue = await prisma.profile.findFirst({
             where: {
-                fb_messenger_id: fbMessengerId
+                twilio_id: twilioId
             },
             include: {
                 messages: {
@@ -164,7 +172,7 @@ export async function getProfile(config:Config,fbMessengerId: string) {
             }
         })
         if(profileValue){
-            redis.set(fbMessengerId, JSON.stringify(profileValue), "EX", defaultRedisExpiration)
+            redis.set(twilioId, JSON.stringify(profileValue), "EX", defaultRedisExpiration)
             profile = profileValue
         }
     } else {

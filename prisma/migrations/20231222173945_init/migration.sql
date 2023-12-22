@@ -13,12 +13,12 @@ CREATE TYPE "Country" AS ENUM ('US', 'CA', 'UK');
 -- CreateTable
 CREATE TABLE "Config" (
     "id" "ConfigType" NOT NULL,
-    "rating_weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
+    "rating_weight" DOUBLE PRECISION NOT NULL DEFAULT 2,
     "total_ratings_weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
-    "price_weight" DOUBLE PRECISION NOT NULL DEFAULT 1,
-    "sigmoid_rating_c1" DOUBLE PRECISION NOT NULL DEFAULT 2,
+    "price_weight" DOUBLE PRECISION NOT NULL DEFAULT 2,
+    "sigmoid_rating_c1" DOUBLE PRECISION NOT NULL DEFAULT 0.2,
     "sigmoid_total_ratings_c1" DOUBLE PRECISION NOT NULL DEFAULT 2,
-    "sigmoid_price_c1" DOUBLE PRECISION NOT NULL DEFAULT 2,
+    "sigmoid_price_c1" DOUBLE PRECISION NOT NULL DEFAULT 0.2,
     "categorizer_system_message" TEXT NOT NULL DEFAULT 'You are a virtual assistant on facebook messenger. Help the customer with prompts. Keep your responses very short, below 200 charachters.',
     "categorizer_temperature" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "top_products_count" INTEGER NOT NULL DEFAULT 20,
@@ -33,7 +33,7 @@ CREATE TABLE "Config" (
 CREATE TABLE "Profile" (
     "id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "fb_messenger_id" TEXT NOT NULL,
+    "twilio_id" TEXT NOT NULL,
     "country_code" TEXT,
 
     CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
@@ -76,10 +76,10 @@ CREATE TABLE "Search" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Profile_fb_messenger_id_key" ON "Profile"("fb_messenger_id");
+CREATE UNIQUE INDEX "Profile_twilio_id_key" ON "Profile"("twilio_id");
 
 -- CreateIndex
-CREATE INDEX "Profile_fb_messenger_id_idx" ON "Profile" USING HASH ("fb_messenger_id");
+CREATE INDEX "Profile_twilio_id_idx" ON "Profile" USING HASH ("twilio_id");
 
 -- CreateIndex
 CREATE INDEX "Message_created_at_idx" ON "Message"("created_at");

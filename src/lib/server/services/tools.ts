@@ -18,7 +18,7 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "search_discounts",
-            description: "Search amazon for discounts and coupons. Only search if the user explicitly tells you to 'search ...'",
+            description: "Search amazon for discounts and coupons. Use this tool when user asks to search a keyword",
             parameters: {
                 type: "object",
                 properties: {
@@ -28,25 +28,25 @@ export const toolsObjects: OpenAI.ChatCompletionTool[] = [
             }
         }
     },
-    {
-        type: "function",
-        function: {
-            name: "country",
-            description: "update user's country for tailored search results.",
-            parameters: {
-                type: "object",
-                properties: {
-                    countryCode: { type: "string", description: "Two letter country code in ISO 3166-1 alpha-2. Convert to two letter code if needed." },
-                },
-                required: ["countryCode"]
-            }
-        }
-    },
+    // {
+    //     type: "function",
+    //     function: {
+    //         name: "country",
+    //         description: "update user's country for tailored search results.",
+    //         parameters: {
+    //             type: "object",
+    //             properties: {
+    //                 countryCode: { type: "string", description: "Two letter country code in ISO 3166-1 alpha-2. Convert to two letter code if needed." },
+    //             },
+    //             required: ["countryCode"]
+    //         }
+    //     }
+    // },
     {
         type: "function",
         function: {
             name: "report",
-            description: "Reports a problem directly to the developer. Only report if user needs a human to help.",
+            description: "Reports a problem directly to the developer. Only report if the user really needs a human to help.",
             parameters: {
                 type: "object",
                 properties: {
@@ -128,7 +128,7 @@ export const toolsFunc: Record<string, any> = {
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            `Country updated to ${countryCode}.\n\n❓To search follow these examples:\n "Search white running shoes" or "Search tshirts for kids"`,
+            `Country updated to ${countryCode}.\n\n`,
         );
     },
 
@@ -150,7 +150,7 @@ export const toolsFunc: Record<string, any> = {
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            "A human will review your report, shortly.",
+            "A human was notified to assist you.",
         )
     }
 };
