@@ -62,11 +62,10 @@ class AmazonApi {
 
         const rawProducts = searchResponse.map(sr=>{
 
+  
 
             if(
-                !Boolean(sr.prices?.length) ||
-                sr.rating==null ||
-                sr.ratings_total==null 
+                !Boolean(sr.prices?.length)
             ) return null
 
             const prices = getPrices(sr)
@@ -88,8 +87,8 @@ class AmazonApi {
 
                 isPrime:sr.is_prime??false,
                 isSponsored:sr.sponsored??false,
-                rating:sr.rating,
-                ratingsTotal:sr.ratings_total,
+                rating:sr.rating??0,
+                ratingsTotal:sr.ratings_total??0,
                 symbol:prices[0].symbol,
 
                 priceCurrValue:currValue,

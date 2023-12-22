@@ -36,6 +36,8 @@
         <div class="w-2/3">
 
             <div class="flex flex-col gap-1 p-2">
+
+
                 <div id="title" class="line-clamp-1">
                     <a href={product.link} target="_blank" rel="noreferrer">
                         <p>{product.title}</p>
@@ -52,7 +54,7 @@
 
                 <!-- Prices -->
                 <div id="price" class="row">
-                    <span class="text-2xl">
+                    <span class="text-lg">
                         {product.symbol}{product.priceCurrValue.toFixed(2)}
                     </span>
 
@@ -63,24 +65,25 @@
                     {/if}
                 </div>
 
+
                 <!-- Badges -->
-                <div class="flex row gap-2">
+                <div class="flex row gap-2 p-2">
                     {#if product.discountValue > 0}
-                        <span class="badge variant-filled-primary text-md">
+                        <span class="badge variant-filled-primary text-xl">
                             {product.symbol}{(product.discountValue).toFixed(0)}
     
                                 OFF
                         </span>
                     {/if}
                     {#if product.couponValue > 0}
-                        <span class="badge variant-filled-secondary text-md">
+                        <span class="badge variant-filled-secondary text-xl">
                             {product.symbol}{(product.couponValue).toFixed(0)}
     
                                 Coupon
                         </span>
                     {/if}
                     {#if product.isPrime}
-                        <span id="extra" class="badge variant-filled">
+                        <span id="extra" class="badge variant-filled text-xl">
                             ✔ Prime
                         </span>
                     {/if}
