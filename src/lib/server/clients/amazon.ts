@@ -51,8 +51,8 @@ class AmazonApi {
                 products: this.convertSearchResponseToNativeType(searchResponse.search_results)
             }
         } else {
-
             console.log("Request to api.asindataapi.com Failed.:", data)
+            console.log(">> req:", queryParams)
             return null
         }
 
