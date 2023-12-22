@@ -16,13 +16,6 @@
         ? 'variant-ringed-primary'
         : 'variant-glass-surface'}"
 >
-    <header class="flex justify-between p-1">
-        <h1>{index + 1}.</h1>
-        <h1 class={isSelected ? 'text-primary-500' : ''}>
-            Quality Score: {productStats.qualityScore.toFixed(2)}
-        </h1>
-    </header>
-
     <div class="flex justify-center">
 
         <div class="w-1/3">

@@ -20,7 +20,7 @@
 				.slice(-topProductsCount)
 				.reverse();
 			selectedAsin = filteredProducts[0].asin;
-			updateChartData();
+			// updateChartData();
 		},
 		"Value": () => {
 			filteredProducts = products
@@ -30,7 +30,7 @@
 				.slice(-topProductsCount)
 				.reverse();
 			selectedAsin = filteredProducts[0].asin;
-			updateChartData();
+			// updateChartData();
 		},
 		"Quality": () => {
 			filteredProducts = products
@@ -40,7 +40,7 @@
 				.slice(-topProductsCount)
 				.reverse();
 			selectedAsin = filteredProducts[0].asin;
-			updateChartData();
+			// updateChartData();
 		},
 		"Lowest Price": () => {
 			filteredProducts = products
@@ -50,7 +50,7 @@
 				.slice(-topProductsCount)
 				.reverse();
 			selectedAsin = filteredProducts[0].asin;
-			updateChartData();
+			// updateChartData();
 		},
 		"Highest Price": () => {
 			filteredProducts = products
@@ -60,7 +60,7 @@
 				.slice(-topProductsCount)
 				.reverse();
 			selectedAsin = filteredProducts[0].asin;
-			updateChartData();
+			// updateChartData();
 		}
 	};
 
@@ -111,7 +111,7 @@
 			const rect = containerElement.getBoundingClientRect();
 			const elementTop = rect.top;
 			const elementBottom = rect.top + rect.height;
-			const viewportCenterY = window.innerHeight * 0.6;
+			const viewportCenterY = window.innerHeight * 0.5;
 			const isCentered =
 				elementTop < viewportCenterY  &&
 				elementBottom > viewportCenterY
@@ -145,9 +145,9 @@
 	<meta property="og:image" content="%sveltekit.assets%/chart.png" />
 </svelte:head>
 
-<div class="w-full sticky top-0 z-10 card h-48 drop-shadow-lg">
+<!-- <div class="w-full sticky top-0 z-10 card h-48 drop-shadow-lg">
 	<ScatterPlot points={dataset} labels={axLabels} selectedId={selectedAsin} {areaPoints} />
-</div>
+</div> -->
 
 <div class="flex flex-col justify-center items-center px-2">
 
@@ -155,8 +155,7 @@
 
 	<div class="card flex flex-col justify-center items-center gap-4 p-4">
 		<p>
-			Disclaimer: Links included on this page maybe affiliated with third parties and we may recieve
-			commission or other compensation from them.
+			Disclaimer: We may earn commissions from third-party affiliate links on this page.
 		</p>
 
 		<a class="btn variant-filled" href={search_url} target="_blank" rel="noreferrer">
@@ -182,11 +181,6 @@
 	<div class="flex flex-col gap-2 py-4 max-w-2xl">
 		{#each filteredProducts as product, i}
 			<div  bind:this={containers[i]} data-id={product.asin}>
-
-				<p>ratingScore: {product.productStats?.ratingScore}</p>
-				<p>ratingsTotalScore: {product.productStats?.ratingsTotalScore}</p>
-				<p>priceOrgScore: {product.productStats?.priceOrgScore}</p>
-
 				<ProductCard
 					product={product}
 					isSelected={selectedAsin === product.asin}
